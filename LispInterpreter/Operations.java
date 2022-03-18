@@ -2,7 +2,7 @@ package LispInterpreter;
 
 public class Operations {
 
-	public static Object addOperation(String expression) {
+	public static Object arithmeticOperation(String expression) {
 
 		try {
 
@@ -23,7 +23,6 @@ public class Operations {
 				return integerOperation(operator, operationBody);
 
 			}
-			// (?<!\S)([-]{0,1}([\d^.]+)|((\d+\.\d+)))(?!\S)
 
 		} catch (Exception ex) {
 			System.out.println(ex);
