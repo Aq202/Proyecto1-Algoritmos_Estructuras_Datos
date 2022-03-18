@@ -11,9 +11,12 @@ public class Main{
 		Scanner sc = new Scanner(System.in);
 		
 		String expression = "(+ 56 54 (- 1 2 ( + 3 2)))";
-		String result = interpreter.operate(expression);
+		//interpreter.operate(expression);
 		
-		System.out.println(result);
+		//System.out.println(result);
+		
+		double h = 0.1;
+		System.out.println((int) h);
 		
 		sc.close();
 	}

@@ -2,3 +2,5 @@
 /Interpreter.class
 /SintaxScanner.class
 /Operations.class
+/Data.class
+/InvalidExpression.class

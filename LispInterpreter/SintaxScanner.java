@@ -25,7 +25,7 @@ public class SintaxScanner {
 	 * @param expression
 	 * @return boolean. 
 	 */
-	private static boolean match(String regex, String expression) {
+	public static boolean match(String regex, String expression) {
 		return evaluateRegex(regex, expression).length > 0;
 	}
 	
