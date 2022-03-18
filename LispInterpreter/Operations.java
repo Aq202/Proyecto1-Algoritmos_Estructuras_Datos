@@ -2,11 +2,9 @@ package LispInterpreter;
 
 public class Operations {
 
-	public static Object arithmeticOperation(String expression) {
+	public static Object arithmeticOperation(String expressionContent) throws InvalidExpression {
 
-		try {
-
-			String expressionContent = getListContent(expression.trim()); // obtiene contenido de los ()
+		
 			//obtiene primer signo
 			final String operator = SintaxScanner.evaluateRegex("^\\s*[\\+\\-*\\/]", expressionContent)[0].trim();
 			//obtiene todo menos primer signo
@@ -24,11 +22,7 @@ public class Operations {
 
 			}
 
-		} catch (Exception ex) {
-			System.out.println(ex);
-			throw new IllegalArgumentException("La operacion ingresada no es valida.");
-
-		}
+		
 
 	}
 

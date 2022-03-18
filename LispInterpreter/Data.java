@@ -25,7 +25,7 @@ public class Data {
 	
 	@Override
 	public String toString() {
-		return value + "";
+		return value != null ? value+"" : null;
 		
 	}
 
