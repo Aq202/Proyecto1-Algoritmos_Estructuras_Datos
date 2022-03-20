@@ -1,17 +1,27 @@
 package LispInterpreter;
 
+import java.util.Arrays;
+
 public class Interpreter {
+	
+	public static final String[] RESERVER_WORDS = {"setq"};
 	
 	public Data operate(String expression) throws InvalidExpression{
 		
 		int state = SintaxScanner.getState(expression);
-		String mainExpression = operateSubexpressions(Operations.getListContent(expression));
+		String mainExpression;
 		
 		switch(state) {
-		case 1:{
-			
+		case 1:{ //operacion aritmetica
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
+		case 2:{ //nueva variable
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2);
+			return Operations.assignVariable(mainExpression);
+		}
+		
+		
 		}
 		
 		throw new InvalidExpression();
@@ -24,20 +34,41 @@ public class Interpreter {
 	 * @param expression 
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 */
-	private String operateSubexpressions(String expression) throws InvalidExpression{
+	private String operateSubexpressions(String expression, int argumentsNumber) throws InvalidExpression{
 		
-		String operatedExpression = expression;
-		String subexpressions_regexp = "(\\([^()]*\\))|(\\b[a-z]\\w*)"; //selecciona las operaciones y variables
-		String[] regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
+		String operatedExpression = expression, 
+				arguments = "";
 		
-		while(regexMatches.length > 0 && regexMatches[0] != expression.trim()) {
+		final String firstWord_regex = "^\\s*[^\\s]+";
+		
+		for(int i = 0; i < argumentsNumber; i++) {
 			
-			operatedExpression = operatedExpression.replaceFirst(subexpressions_regexp, operate(regexMatches[0]).toString());
-			regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
-			
+			//get and save arguments(first word)
+			String[] argumentMatches = SintaxScanner.evaluateRegex(firstWord_regex, operatedExpression);
+			if(argumentMatches.length > 0) arguments += " " + argumentMatches[0];
+			//delete from expression to operate
+			operatedExpression = operatedExpression.replaceFirst(firstWord_regex, "");
 		}
 		
-		return operatedExpression;	
+		//selecciona las (operaciones), "strings", 'strings' o variables.
+		String subexpressions_regexp = "(\\([^()]*\\))|(\"[^\"]*\")|('[^']*')|(\\b(?<!\")[a-z]\\w*(?!\")\\b)"; 
+		String[] regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
+		
+		int matchIndex = 0;
+		while(regexMatches.length > matchIndex && regexMatches[matchIndex] != expression.trim()) {
+			
+			if(Data.isString(regexMatches[matchIndex])) {
+				matchIndex++;
+				continue;
+			}
+			
+			operatedExpression = operatedExpression.replaceFirst(subexpressions_regexp, operate(regexMatches[matchIndex]).toString());
+			regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
+			matchIndex = 0;
+			
+		}
+		//return full expression
+		return (arguments + " " + operatedExpression).trim();	
 		
 		
 	}

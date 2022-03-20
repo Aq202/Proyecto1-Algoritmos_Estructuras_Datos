@@ -4,3 +4,5 @@
 /Operations.class
 /Data.class
 /InvalidExpression.class
+/VariableFactory.class
+/ReferenceException.class
