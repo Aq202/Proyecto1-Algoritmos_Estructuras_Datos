@@ -6,7 +6,7 @@ public class Interpreter {
 	
 	public static final String[] RESERVER_WORDS = {"setq"};
 	
-	public Data operate(String expression) throws InvalidExpression{
+	public Data operate(String expression) throws InvalidExpression, ReferenceException{
 		
 		int state = SintaxScanner.getState(expression);
 		String mainExpression;
@@ -21,6 +21,10 @@ public class Interpreter {
 			return Operations.assignVariable(mainExpression);
 		}
 		
+		case 6:{//evaluar variable
+			return VariableFactory.getVariable(expression);
+		}	
+		
 		
 		}
 		
@@ -33,8 +37,9 @@ public class Interpreter {
 	 * Se encarga de ejecutar las operaciones hijas de una expresion.
 	 * @param expression 
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
+	 * @throws ReferenceException 
 	 */
-	private String operateSubexpressions(String expression, int argumentsNumber) throws InvalidExpression{
+	private String operateSubexpressions(String expression, int argumentsNumber) throws InvalidExpression, ReferenceException{
 		
 		String operatedExpression = expression, 
 				arguments = "";

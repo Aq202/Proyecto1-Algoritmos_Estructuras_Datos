@@ -41,7 +41,9 @@ public class VariableFactory {
 		return data;
 	}
 
-	public static Data getVariable(String name) throws ReferenceException {
+	public static Data getVariable(String name) throws ReferenceException, IllegalArgumentException {
+		
+		if(name == null) throw new IllegalArgumentException();
 
 		if (variables.containsKey(name))
 			return variables.get(name);

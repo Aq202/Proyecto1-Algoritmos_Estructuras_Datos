@@ -24,7 +24,9 @@ class InterpreterTests {
 			assertEquals(24, Integer.parseInt(interpreter.operate("(+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) )").toString()));
 			assertEquals(72.0, Double.parseDouble(interpreter.operate("(* (- 9.5 0.5) 8)").toString()));
 		} catch (InvalidExpression e1) {
-			fail();
+			fail(e1);
+		} catch (ReferenceException e) {
+			fail(e);
 		}
 
 		try {
@@ -32,6 +34,8 @@ class InterpreterTests {
 			fail();
 		} catch (InvalidExpression e) {
 			System.out.println("Resultado esperado test: " + e.toString());
+		} catch (ReferenceException e) {
+			fail(e);
 		}
 
 	}
@@ -51,6 +55,18 @@ class InterpreterTests {
 			fail("Invalid expression." + e);
 		} catch (ReferenceException e) {
 			fail(e);
+		}
+	}
+
+	@Test
+	void operationWithVariable() {
+		try {
+			interpreter.operate("(setq numero 10)");
+			assertEquals(15, Integer.parseInt(interpreter.operate("(+ numero 5 )").toString()));
+			assertEquals(25.5, Double.parseDouble(interpreter.operate("(+ 0.5 (setq name 25) )").toString()));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
 		}
 	}
 
