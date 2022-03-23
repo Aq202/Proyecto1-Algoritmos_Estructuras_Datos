@@ -3,6 +3,8 @@ package LispInterpreter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Interpreter {
 
@@ -15,7 +17,7 @@ public class Interpreter {
 
 		switch (state) {
 		case 1: { // operacion aritmetica
-			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
+			mainExpression = operateSubexpressions(expression, 1);
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
 		case 2: { // nueva variable
@@ -42,41 +44,47 @@ public class Interpreter {
 	 */
 	private String operateSubexpressions(String expression, int argumentsNumber)
 			throws InvalidExpression, ReferenceException {
+		
+		String arguments, operatedExpression;
 
-		String operatedExpression = expression, arguments = "";
-
-		final String firstWord_regex = "^\\s*[^\\s]+";
-
-		for (int i = 0; i < argumentsNumber; i++) {
-
-			// get and save arguments(first word)
-			String[] argumentMatches = SintaxScanner.evaluateRegex(firstWord_regex, operatedExpression);
-			if (argumentMatches.length > 0)
-				arguments += " " + argumentMatches[0];
-			// delete from expression to operate
-			operatedExpression = operatedExpression.replaceFirst(firstWord_regex, "");
+		try {
+			arguments = Operations.getListParameters(expression, argumentsNumber);
+			operatedExpression = Operations.getListBody(expression, argumentsNumber);
+		} catch (NullPointerException ex) {
+			throw new InvalidExpression();
 		}
 
 		// selecciona las (operaciones), "strings", 'strings' o variables.
-		String subexpressions_regexp = "(\\([^()]*\\))|(\"[^\"]*\")|('[^']*')|(\\b(?<!\")[a-z]\\w*(?!\")\\b)";
-		String[] regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
+		String[] regexMatches = getChildExpressions(operatedExpression);
 
 		int matchIndex = 0;
-		while (regexMatches.length > matchIndex && regexMatches[matchIndex] != expression.trim()) {
+		while (regexMatches.length > matchIndex && !regexMatches[matchIndex].equals(expression.trim())) {
 
-			if (Data.isString(regexMatches[matchIndex])) {
-				matchIndex++;
-				continue;
-			}
+			String valueToOverwrite = regexMatches[matchIndex];
+			String newValue = operate(regexMatches[matchIndex]).toString();
+			operatedExpression = operatedExpression.replaceFirst(Pattern.quote(valueToOverwrite),
+					Matcher.quoteReplacement(newValue));
 
-			operatedExpression = operatedExpression.replaceFirst(subexpressions_regexp,
-					operate(regexMatches[matchIndex]).toString());
-			regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
-			matchIndex = 0;
+			matchIndex++;
 
 		}
+
+		// obtener "Strings", 'strings' y variables
+		final String childElements_regex = "(\"[^\"]*\")|('[^']*')|((?<!\")[a-z][^\"'() ]*(?!\"))";
+		String[] childElements = SintaxScanner.evaluateRegex(childElements_regex, operatedExpression);
+
+		for (String element : childElements) {
+
+			if (!Data.isString(element)) {
+				// evaluar variable
+				String variableValue = operate(element).toString();
+				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(element),
+						Matcher.quoteReplacement(variableValue));
+			}
+		}
+
 		// return full expression
-		return (arguments + " " + operatedExpression).trim();
+		return (arguments + " " + Operations.getListContent(operatedExpression.trim()).trim());
 
 	}
 
@@ -88,7 +96,6 @@ public class Interpreter {
 
 			String childExpression = "";
 			int parenthesesCount = 0;
-			int charCount = 0;
 
 			// conjunto de "strings"
 			ArrayList<String> strings = new ArrayList<>(
@@ -114,10 +121,9 @@ public class Interpreter {
 
 						// si no hay una expresion padre, anadir contenido
 						if (parenthesesCount == 0) {
-							//expressions.add(childExpression.trim());
+							// expressions.add(childExpression.trim());
 							childExpression = "";
 						}
-						
 
 						parenthesesCount++;
 					} else if (currentChar.equals(")")) {
@@ -139,10 +145,6 @@ public class Interpreter {
 
 			}
 
-			// agregar contenido restante si no esta vacio
-			if (!childExpression.equalsIgnoreCase("")) {
-				expressions.add(childExpression.trim());
-			}
 		}
 		return expressions.toArray(new String[expressions.size()]);
 	}
