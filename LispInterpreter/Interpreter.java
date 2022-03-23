@@ -88,6 +88,11 @@ public class Interpreter {
 
 	}
 
+	/**
+	 * Metodo que permite obtener las (expresiones) hermanas.
+	 * @param expressionContent
+	 * @return String[].
+	 */
 	public String[] getChildExpressions(String expressionContent) {
 
 		ArrayList<String> expressions = new ArrayList<>();
