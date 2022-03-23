@@ -12,11 +12,11 @@ class VariablesTests {
 	@Test
 	void createVariableTest() {
 		
-		VariableFactory.newVariable("var1", 25.12);
+		VariableFactory.newVariable("var1_", 25.12);
 		VariableFactory.newVariable("var2", "Hola mundo!");
 		VariableFactory.newVariable("var3", 10);
 		try {
-			assertEquals(25.12, Double.parseDouble(VariableFactory.getVariable("var1").toString()));
+			assertEquals(25.12, Double.parseDouble(VariableFactory.getVariable("var1_").toString()));
 			assertEquals("Hola mundo!", VariableFactory.getVariable("var2").toString());
 			assertEquals(10,Integer.parseInt(VariableFactory.getVariable("var3").toString()));
 		} catch (ReferenceException e) {
