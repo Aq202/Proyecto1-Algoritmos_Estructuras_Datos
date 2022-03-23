@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import LispInterpreter.Interpreter;
 import LispInterpreter.InvalidExpression;
+import LispInterpreter.Operations;
 import LispInterpreter.ReferenceException;
 import LispInterpreter.VariableFactory;
 
@@ -17,7 +18,7 @@ class InterpreterTests {
 		interpreter = new Interpreter();
 	}
 
-	@Test
+	//@Test
 	void arithmeticTest() {
 
 		try {
@@ -40,7 +41,7 @@ class InterpreterTests {
 
 	}
 
-	@Test
+	//@Test
 	void assignVariable() {
 		try {
 			interpreter.operate("(setq var1 (+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) ))");
@@ -58,16 +59,23 @@ class InterpreterTests {
 		}
 	}
 
-	@Test
+	//@Test
 	void operationWithVariable() {
 		try {
-			interpreter.operate("(setq numero 10)");
-			assertEquals(15, Integer.parseInt(interpreter.operate("(+ numero 5 )").toString()));
-			assertEquals(25.5, Double.parseDouble(interpreter.operate("(+ 0.5 (setq name 25) )").toString()));
+			//interpreter.operate("(setq numero 10)");
+			//assertEquals(15, Integer.parseInt(interpreter.operate("(+ numero 5 )").toString()));
+			//assertEquals(25.5, Double.parseDouble(interpreter.operate("(+ 0.5 (setq name 25) )").toString()));
+			assertEquals(22, Integer.parseInt(String.valueOf(interpreter.operate("(+ 3 (setq nombre (+ 1 5)) (+ 1 5 (+ 1 nombre)))"))));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			fail("OperationWithVariableError "+e);
 		}
+	}
+	
+	@Test
+	void getChildrenOperations() {
+		
+		interpreter.getChildExpressions("+ 3 (s n (+ 'y(a)')) (+ 1 5 (+ 1 nombre))");
 	}
 
 }

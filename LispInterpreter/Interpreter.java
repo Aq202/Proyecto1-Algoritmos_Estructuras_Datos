@@ -1,81 +1,150 @@
 package LispInterpreter;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Interpreter {
-	
-	public static final String[] RESERVER_WORDS = {"setq"};
-	
-	public Data operate(String expression) throws InvalidExpression, ReferenceException{
-		
+
+	public static final String[] RESERVER_WORDS = { "setq" };
+
+	public Data operate(String expression) throws InvalidExpression, ReferenceException {
+
 		int state = SintaxScanner.getState(expression);
 		String mainExpression;
-		
-		switch(state) {
-		case 1:{ //operacion aritmetica
+
+		switch (state) {
+		case 1: { // operacion aritmetica
 			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
-		case 2:{ //nueva variable
+		case 2: { // nueva variable
 			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2);
 			return Operations.assignVariable(mainExpression);
 		}
-		
-		case 6:{//evaluar variable
+
+		case 6: {// evaluar variable
 			return VariableFactory.getVariable(expression);
-		}	
-		
-		
 		}
-		
+
+		}
+
 		throw new InvalidExpression();
-		
-		
+
 	}
-	
+
 	/**
 	 * Se encarga de ejecutar las operaciones hijas de una expresion.
-	 * @param expression 
+	 * 
+	 * @param expression
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
-	 * @throws ReferenceException 
+	 * @throws ReferenceException
 	 */
-	private String operateSubexpressions(String expression, int argumentsNumber) throws InvalidExpression, ReferenceException{
-		
-		String operatedExpression = expression, 
-				arguments = "";
-		
+	private String operateSubexpressions(String expression, int argumentsNumber)
+			throws InvalidExpression, ReferenceException {
+
+		String operatedExpression = expression, arguments = "";
+
 		final String firstWord_regex = "^\\s*[^\\s]+";
-		
-		for(int i = 0; i < argumentsNumber; i++) {
-			
-			//get and save arguments(first word)
+
+		for (int i = 0; i < argumentsNumber; i++) {
+
+			// get and save arguments(first word)
 			String[] argumentMatches = SintaxScanner.evaluateRegex(firstWord_regex, operatedExpression);
-			if(argumentMatches.length > 0) arguments += " " + argumentMatches[0];
-			//delete from expression to operate
+			if (argumentMatches.length > 0)
+				arguments += " " + argumentMatches[0];
+			// delete from expression to operate
 			operatedExpression = operatedExpression.replaceFirst(firstWord_regex, "");
 		}
-		
-		//selecciona las (operaciones), "strings", 'strings' o variables.
-		String subexpressions_regexp = "(\\([^()]*\\))|(\"[^\"]*\")|('[^']*')|(\\b(?<!\")[a-z]\\w*(?!\")\\b)"; 
+
+		// selecciona las (operaciones), "strings", 'strings' o variables.
+		String subexpressions_regexp = "(\\([^()]*\\))|(\"[^\"]*\")|('[^']*')|(\\b(?<!\")[a-z]\\w*(?!\")\\b)";
 		String[] regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
-		
+
 		int matchIndex = 0;
-		while(regexMatches.length > matchIndex && regexMatches[matchIndex] != expression.trim()) {
-			
-			if(Data.isString(regexMatches[matchIndex])) {
+		while (regexMatches.length > matchIndex && regexMatches[matchIndex] != expression.trim()) {
+
+			if (Data.isString(regexMatches[matchIndex])) {
 				matchIndex++;
 				continue;
 			}
-			
-			operatedExpression = operatedExpression.replaceFirst(subexpressions_regexp, operate(regexMatches[matchIndex]).toString());
+
+			operatedExpression = operatedExpression.replaceFirst(subexpressions_regexp,
+					operate(regexMatches[matchIndex]).toString());
 			regexMatches = SintaxScanner.evaluateRegex(subexpressions_regexp, operatedExpression);
 			matchIndex = 0;
-			
+
 		}
-		//return full expression
-		return (arguments + " " + operatedExpression).trim();	
-		
-		
+		// return full expression
+		return (arguments + " " + operatedExpression).trim();
+
+	}
+
+	public String[] getChildExpressions(String expressionContent) {
+
+		ArrayList<String> expressions = new ArrayList<>();
+
+		if (expressionContent != null) {
+
+			String childExpression = "";
+			int parenthesesCount = 0;
+			int charCount = 0;
+
+			// conjunto de "strings"
+			ArrayList<String> strings = new ArrayList<>(
+					Arrays.asList(SintaxScanner.evaluateRegex("(\"[^\"]*\")|('[^']*')", expressionContent)));
+
+			for (int i = 0; i < expressionContent.length(); i++) {
+
+				String currentChar = String.valueOf(expressionContent.charAt(i));
+
+				int firstStringExpressionIndex = !strings.isEmpty() ? expressionContent.indexOf(strings.get(0)) : -1;
+				// eliminar strings ya evaluados
+				if (!strings.isEmpty() && i > (firstStringExpressionIndex + strings.get(0).length() - 1)) {
+					strings.remove(0);
+					firstStringExpressionIndex = !strings.isEmpty() ? expressionContent.indexOf(strings.get(0)) : -1;
+				}
+
+				// si esta recorriendo un strings, ignorar parentesis y supuestos hijos
+				if (strings.isEmpty() || !(firstStringExpressionIndex <= i
+						&& i <= (firstStringExpressionIndex + strings.get(0).length() - 1))) {
+
+					// manejar inicio-final expresiones
+					if (currentChar.equals("(")) {
+
+						// si no hay una expresion padre, anadir contenido
+						if (parenthesesCount == 0) {
+							//expressions.add(childExpression.trim());
+							childExpression = "";
+						}
+						
+
+						parenthesesCount++;
+					} else if (currentChar.equals(")")) {
+						parenthesesCount--;
+						// si ya no hay parentesis por cerrar, agregar expresion
+						if (parenthesesCount == 0) {
+
+							childExpression += ")"; // anadir caracter final
+							if (childExpression.trim().length() > 0)
+								expressions.add(childExpression.trim()); // agregar expresion
+							childExpression = "";
+							continue; // evita duplicar el )
+						}
+					}
+				}
+
+				// anadir caracter
+				childExpression += currentChar;
+
+			}
+
+			// agregar contenido restante si no esta vacio
+			if (!childExpression.equalsIgnoreCase("")) {
+				expressions.add(childExpression.trim());
+			}
+		}
+		return expressions.toArray(new String[expressions.size()]);
 	}
 
 }
