@@ -16,7 +16,7 @@ public class SintaxScanner {
 	public static int getState(String expression) {
 
 		System.out.println(expression);
-		if (match("^\\(\\s*[\\+\\-\\/\\*](\\s*\\w*[.]*(\\(.*\\))*)*\\)", expression))
+		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\)", expression))
 			return 1;
 		// verifica si es la instruccion (setq name value), donde value puede ser un
 		// valor o una expresion a evaluar
