@@ -26,6 +26,10 @@ public class Interpreter {
 			return new Data (Operations.booleanOperation(mainExpression));
 		}
 		
+		case 4:{
+			mainExpression = (operateSubexpressions(Operations.getListContent(expression), 1));
+			
+		}
 		case 6:{//evaluar variable
 			return VariableFactory.getVariable(expression);
 		}	

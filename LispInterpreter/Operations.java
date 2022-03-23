@@ -166,7 +166,7 @@ public class Operations {
 					}
 					
 					case "=": {
-						if (current_num > next_num) {
+						if (current_num == next_num) {
 							current_result = true;
 						}
 						else {

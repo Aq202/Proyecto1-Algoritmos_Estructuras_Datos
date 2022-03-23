@@ -26,6 +26,8 @@ public class SintaxScanner {
 			return 2;
 		if (match("^\\(\\s*[\\<\\>\\=]\\+(\\s*\\w*[.]*(\\(.*\\))*)*\\)", expression))
 			return 3;
+		if (match("^\\(\\s*cond\\s+\\([.]*\\)\\s+\\([.]*\\)\\s+\\([.]*\\)\\)", expression))
+			return 4;
 		if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
 			return 6;
 
