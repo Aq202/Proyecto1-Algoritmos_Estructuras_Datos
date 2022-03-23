@@ -21,6 +21,11 @@ public class Interpreter {
 			return Operations.assignVariable(mainExpression);
 		}
 		
+		case 3:{
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
+			return new Data (Operations.booleanOperation(mainExpression));
+		}
+		
 		case 6:{//evaluar variable
 			return VariableFactory.getVariable(expression);
 		}	

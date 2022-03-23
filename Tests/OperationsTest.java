@@ -18,6 +18,7 @@ class OperationsTest {
 			assertEquals(18.06, Operations.arithmeticOperation("* 2 4.3 2.1"));
 			assertEquals(5, Operations.arithmeticOperation("/ 25 5"));
 			assertEquals(-1, Operations.arithmeticOperation("- 1 -1 3"));
+			assertEquals(true, Operations.booleanOperation("< 1.2 2.2")); 
 
 		} catch (InvalidExpression e) {
 			fail(e);

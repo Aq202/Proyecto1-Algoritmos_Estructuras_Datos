@@ -1,5 +1,7 @@
 package LispInterpreter;
 
+import java.util.ArrayList;
+
 public class Operations {
 
 	/**
@@ -116,7 +118,81 @@ public class Operations {
 	private static int integerOperation(String operator, String expressionBody) throws InvalidExpression {
 		return (int) doubleOperation(operator, expressionBody);
 	}
+	
+	public static boolean booleanOperation(String expressionContent) throws InvalidExpression {
+		// obtiene primer signo
+		final String operator = SintaxScanner.evaluateRegex("^\\s*[\\<\\=*\\>]", expressionContent)[0].trim();
+		// obtiene todo menos primer signo
+		final String expressionBody = SintaxScanner.evaluateRegex("(?<=[\\<\\=*\\>]).+", expressionContent)[0];
+		
+		if (operator == null)
+			throw new InvalidExpression("Operador invalido.");
+		if (expressionBody == null)
+			throw new InvalidExpression();
 
+		String[] elements = expressionBody.split(" ");
+		ArrayList<String> numbers = new ArrayList<String>();
+		for (String elem : elements) {
+			if (elem.trim() != "") numbers.add(elem.trim());
+		}
+		boolean current_result = true;
+		for (int counter = 0; counter < numbers.size()-1; counter++) {
+			if (!current_result) break;
+			if (SintaxScanner.hasMatches("(?<!\\S)([-]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))(?!\\S)", numbers.get(counter))) {
+				
+				if (SintaxScanner.hasMatches("(?<!\\S)([-]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))(?!\\S)", numbers.get(counter+1))) {
+					double current_num = Double.parseDouble(numbers.get(counter));
+					double next_num = Double.parseDouble(numbers.get((counter+1)));
+					switch (operator.trim()) {
+					
+					case "<":{
+						if (current_num < next_num) {
+							current_result = true;
+						}
+						else {
+							current_result = false;
+						}
+						break;
+					} 
+					
+					case ">":{
+						if (current_num > next_num) {
+							current_result = true;
+						}
+						else {
+							current_result = false;
+						}
+						break;
+					}
+					
+					case "=": {
+						if (current_num > next_num) {
+							current_result = true;
+						}
+						else {
+							current_result = false;
+						}
+						break;
+					}
+					
+					default:
+						throw new InvalidExpression("Operador invalido.");
+					} 
+				}
+				else {
+					throw new InvalidExpression(numbers.get(counter+1) + " no es un numero."); // no es un numero
+				}
+				
+				
+			}
+			else {
+				throw new InvalidExpression(numbers.get(counter) + " no es un numero."); // no es un numero
+			}
+		}
+		return current_result;
+		
+	}
+	
 	public static String getListContent(String expression) throws IndexOutOfBoundsException {
 
 		return SintaxScanner.evaluateRegex("(?<=^\\().+(?=\\)$)", expression)[0];
