@@ -19,11 +19,10 @@ public class SintaxScanner {
 
 		expression = expression != null ? expression.trim() : null;
 
-		// ^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\) EXPRESION ANTERIOR
+		// Operacion aritmetica
 		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+([^()\"']+|(\\(.*\\))+)+\\)", expression))
 			return 1;
-		// verifica si es la instruccion (setq name value), donde value puede ser un
-		// valor o una expresion a evaluar
+
 		// (setq name (operators)|"string"|'String'|variable)
 		if (match("^\\(\\s*setq\\s+(\\d*[a-z]\\w*)\\s*((\\(.+\\))|('[^']*')|(\"[^\"]*\")|[^\\s^\\(^\\)]+)\\s*\\)$",
 				expression))
@@ -36,31 +35,31 @@ public class SintaxScanner {
 		// Definicion de funciones
 		if (match("^\\(\\s*defun\\s+[^()\"']+\\([^()\"']*\\).+\\)$", expression))
 			return 4;
+				
+		//Listp
+		if(match("^\\s*\\(listp\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
+			return 5;
+		
+		//List
+		if(match("^\\(\\s*list\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$",expression))
+			return 6;
+		
+		// Write
+		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
+			return 7;
+		
+		// Quote
+		if(match("^\\s*\\(quote\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$", expression))
+			return 8;
+		
+		// Single quote
+		if(match("^\\s*'+((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))$", expression))
+			return 8;
 		
 		//evaluar funcion
 		if(match("^\\(\\s*((?!write)|(?!quote)|(?!setq)|(?!list)|(?!listp)|(?!atom)|(?!cond)|(?!defun)|(?!setq)).[^()\\\"']+\\s+.*\\)$", expression))
 			if(!Arrays.asList(Interpreter.RESERVER_WORDS).contains(evaluateRegex("(?:\\w+)",expression)[0]))
-				return 5;
-		
-		//Listp
-		if(match("^\\s*\\(listp\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
-			return 6;
-		
-		//List
-		if(match("^\\(\\s*list\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$",expression))
-			return 7;
-		
-		// Write
-		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
-			return 8;
-		
-		// Quote
-		if(match("^\\s*\\(quote\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$", expression))
-			return 9;
-		
-		// Single quote
-		if(match("^\\s*'+((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))$", expression))
-			return 9;
+				return 9;
 		
 		// Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
 		if (match("^[^()\"' ]+$", expression))

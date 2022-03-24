@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 public class Interpreter {
 
-	public static final String[] RESERVER_WORDS = {"setq","list","listp","t","nil","atom","write","cond","defun","quote"};
+	public static final String[] RESERVER_WORDS = { "setq", "list", "listp", "t", "nil", "atom", "write", "cond",
+			"defun", "quote" };
 
 	public static Data operate(String expression) throws InvalidExpression, ReferenceException {
 
@@ -16,52 +17,52 @@ public class Interpreter {
 
 		switch (state) {
 		case 1: { // operacion aritmetica
-			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1,true);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
 		case 2: { // nueva variable
 			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2, true);
 			return Operations.assignVariable(mainExpression);
 		}
-		
+
 		case 3: {// predicado Atom
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1, true);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
 			return Operations.checkAtom(mainExpression, "atom");
 		}
-		
+
 		case 4: { // Nueva funcion
 			Function func = new Function(expression);
 			return VariableFactory.newVariable(func.getName(), func);
 		}
-		
-		case 5:{ //evaluar funcion
-			
-			return Operations.evaluateFunction(expression);
-		}
-		
-		case 6:{ // Predicado lisp
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1, true);
+
+		case 5: { // Predicado lisp
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
 			return Operations.checkAtom(mainExpression, "lisp");
 		}
-		
-		case 7: {// Predicado list
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1,true);
+
+		case 6: {// Predicado list
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
 			return Operations.toList(mainExpression);
 		}
-		
-		case 8:{ // Instruccion write
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1,true);
+
+		case 7: { // Instruccion write
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
 			return Operations.print(mainExpression);
 		}
-		
-		case 9:{ //Instruccion QUOTE
-			if(expression.charAt(0)=='(')
-				mainExpression = operateSubexpressions(Operations.getListContent(expression),1,false);
+
+		case 8: { // Instruccion QUOTE
+			if (expression.charAt(0) == '(')
+				mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, false);
 			else
-				mainExpression = operateSubexpressions(expression,1,false);
+				mainExpression = operateSubexpressions(expression, 1, false);
 			return Operations.quote(mainExpression);
 		}
-		
+
+		case 9: { // evaluar funcion
+
+			return Operations.evaluateFunction(expression);
+		}
+
 		case 10: {// evaluar variable
 			return VariableFactory.getVariable(expression);
 		}
@@ -83,10 +84,10 @@ public class Interpreter {
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 * @throws ReferenceException
 	 */
-	
+
 	public static String operateSubexpressions(String expressionContent, int argumentsNumber, boolean nested)
 			throws InvalidExpression, ReferenceException {
-		
+
 		String arguments = "", operatedExpression;
 		Data data;
 
@@ -98,8 +99,8 @@ public class Interpreter {
 		} catch (NullPointerException ex) {
 			throw new InvalidExpression();
 		}
-		if(arguments.trim().length()>1 && arguments.trim().charAt(0) == '\'') {
-			operatedExpression = arguments.trim().substring(1,arguments.trim().length());
+		if (arguments.trim().length() > 1 && arguments.trim().charAt(0) == '\'') {
+			operatedExpression = arguments.trim().substring(1, arguments.trim().length());
 			arguments = "'";
 		}
 
@@ -111,12 +112,12 @@ public class Interpreter {
 
 			String valueToOverwrite = regexMatches[matchIndex];
 			String newValue;
-			if(!isNested(arguments, valueToOverwrite))
+			if (!isNested(arguments, valueToOverwrite))
 				return (arguments + " " + operatedExpression);
 			data = operate(regexMatches[matchIndex]);
 			nested = data.getDescription() != null && data.getDescription().contains("notNested") ? false : true;
 			newValue = operate(regexMatches[matchIndex]).toString();
-			newValue = newValue.equals("t") || newValue.equals("nil") ? "\"" +newValue+"\"" : newValue;
+			newValue = newValue.equals("t") || newValue.equals("nil") ? "\"" + newValue + "\"" : newValue;
 			operatedExpression = operatedExpression.replaceFirst(Pattern.quote(valueToOverwrite),
 					Matcher.quoteReplacement(newValue));
 
@@ -124,7 +125,7 @@ public class Interpreter {
 
 		}
 
-		if(nested) {
+		if (nested) {
 			// obtener "Strings", 'strings' y variables
 			final String childElements_regex = "(\"[^\"]*\")|('[^']*')|((?<!\")[a-z][^\"'() ]*(?!\"))";
 			String[] childElements = SintaxScanner.evaluateRegex(childElements_regex, operatedExpression);
@@ -134,13 +135,14 @@ public class Interpreter {
 				if (!Data.isString(element)) {
 					// evaluar variable
 					String variableValue = element;
-					if(!Arrays.asList(RESERVER_WORDS).contains(element.toLowerCase()))
+					if (!Arrays.asList(RESERVER_WORDS).contains(element.toLowerCase()))
 						variableValue = operate(element).toString();
-					//variableValue = variableValue instanceof String ? "\"" + variableValue + "\"" : variableValue;
+					// variableValue = variableValue instanceof String ? "\"" + variableValue + "\""
+					// : variableValue;
 					operatedExpression = operatedExpression.replaceFirst(Pattern.quote(element),
 							Matcher.quoteReplacement(variableValue));
 				}
-			}	
+			}
 		}
 
 		// return full expression
@@ -210,40 +212,43 @@ public class Interpreter {
 				childExpression += currentChar;
 
 			}
-			if(childExpression.length()>0 && childExpression.charAt(0) == '\'')
+			if (childExpression.length() > 0 && childExpression.charAt(0) == '\'')
 				expressions.add(childExpression.trim());
 
 		}
 		return expressions.toArray(new String[expressions.size()]);
 	}
-	
+
 	/**
 	 * Verifica si la operacion a realizar es anidada o no
+	 * 
 	 * @param argument, subExpression
 	 * @return boolean.
 	 */
 	private static boolean isNested(String argument, String subExpression) {
-		String[] notNested = {"quote","'"};
-		if(Arrays.asList(notNested).contains(argument.trim()) && !(subExpression.contains("quote") || subExpression.contains("'")))
+		String[] notNested = { "quote", "'" };
+		if (Arrays.asList(notNested).contains(argument.trim())
+				&& !(subExpression.contains("quote") || subExpression.contains("'")))
 			return false;
 		return true;
 	}
-	
+
 	/**
 	 * Verifica si la expresion contiene uno o varios single quote.
+	 * 
 	 * @param childExpression
 	 * @return boolean.
 	 */
 	private static boolean quoteFormat(String childExpression) {
-		if(SintaxScanner.match("'+", childExpression))
+		if (SintaxScanner.match("'+", childExpression))
 			return true;
 		return false;
 	}
-	
+
 	public static Data fileToRow(String[] fileContent) {
 		String row = "";
-		for(String line : fileContent) {
-			if(!line.equals(null))
+		for (String line : fileContent) {
+			if (!line.equals(null))
 				row += line.trim();
 		}
 		return new Data(row);
