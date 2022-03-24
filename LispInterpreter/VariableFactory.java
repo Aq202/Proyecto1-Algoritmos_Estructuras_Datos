@@ -16,23 +16,8 @@ public class VariableFactory {
 		// objeto string
 		if (value instanceof String) {
 
-			String stringValue = String.valueOf(value).trim();
-
-			// valida si es un numero
-			if (Data.isNumber(stringValue)) {
-
-				// numero decimal
-				if (SintaxScanner.hasMatches("\\d+\\.\\d+", stringValue))
-					data = new Data(Double.parseDouble(stringValue));
-				else
-					data = new Data(Integer.parseInt(stringValue));
-			} else {
-				// si tiene formato "String" o 'String"
-				if (Data.isString(stringValue))
-					stringValue = stringValue.substring(1, stringValue.length() - 1); //elimina las comillas
-				
-				data = new Data(stringValue);
-			}
+			data = new Data(Data.castValue(String.valueOf(value)));
+			
 
 		} else
 			data = new Data(value);
@@ -51,4 +36,7 @@ public class VariableFactory {
 			throw new ReferenceException("Variable " + name + " no tiene valor.");
 	}
 
+	public static boolean contains(String name) {
+		return variables.containsKey(name);
+	}
 }

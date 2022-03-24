@@ -60,5 +60,34 @@ public class Data {
 
 		return false;
 	}
+	
+	public static Object castValue(String value) {
+
+
+		value = value.trim();
+
+		// valida si es un numero
+		if (Data.isNumber(value)) {
+
+			// numero decimal
+			if (SintaxScanner.hasMatches("\\d+\\.\\d+", value))
+				return Double.parseDouble(value);
+			else
+				return Integer.parseInt(value);
+		} else {
+			
+			//valor bool
+			
+			
+			// si tiene formato "String" o 'String"
+			if (Data.isString(value))
+				return value.substring(1, value.length() - 1); //elimina las comillas
+			
+			
+			return new IndeterminateObject(value);
+		}
+
+	
+	}
 
 }

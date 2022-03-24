@@ -210,18 +210,17 @@ public class Operations {
 	}
 
 	/**
-	 * Retorna los argumentos(n primeras "palabras" en una lista), separados por
-	 * espacios. Eje: 1 parametro en (+ 1 2) es +.
-	 * 
+	 * Retorna los argumentos n primeras palabras o (param) sin hijos. 
 	 * @param expression
 	 * @param argumentsNumber
-	 * @return String. Parametros separados por " ".
+	 * @return String[]
 	 */
-	public static String getListParameters(String expression, int argumentsNumber) throws NullPointerException{
+	public static String[] getListParameters(String expression, int argumentsNumber) throws NullPointerException{
 
-		String operatedExpression = Operations.getListContent(expression), arguments = "";
+		String operatedExpression = Operations.getListContent(expression);
+		ArrayList<String> arguments = new ArrayList<String>();
 
-		final String firstWord_regex = "^\\s*[^\\s]+";
+		final String firstWord_regex = "^\\s*([^\\s()]+|(\\([^()\"']*\\)))";
 
 		for (int i = 0; i < argumentsNumber; i++) {
 
@@ -229,20 +228,20 @@ public class Operations {
 			String[] argumentMatches = SintaxScanner.evaluateRegex(firstWord_regex, operatedExpression);
 			
 			if (argumentMatches != null && argumentMatches.length > 0) {
-				arguments += " " + argumentMatches[0].trim();
+				arguments.add(argumentMatches[0].trim());
 				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(argumentMatches[0]), Matcher.quoteReplacement(""));
 			} else
 				break;
 		}
 
-		return arguments.trim();
+		return arguments.toArray(new String[arguments.size()]);
 	}
 
 	public static String getListBody(String expression, int argumentsNumber) throws NullPointerException{
 
 		expression = Operations.getListContent(expression);
 		
-		String[] parameters = getListParameters(expression, argumentsNumber).split(" ");
+		String[] parameters = getListParameters(expression, argumentsNumber);
 		for (String param : parameters) {
 			expression = expression.replaceFirst(Pattern.quote(param), Matcher.quoteReplacement(""));
 		}

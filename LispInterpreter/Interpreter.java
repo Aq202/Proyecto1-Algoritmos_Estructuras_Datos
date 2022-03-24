@@ -1,6 +1,5 @@
 package LispInterpreter;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -10,9 +9,9 @@ public class Interpreter {
 
 	public static final String[] RESERVER_WORDS = { "setq" };
 
-	public Data operate(String expression) throws InvalidExpression, ReferenceException {
+	public static Data operate(String expression) throws InvalidExpression, ReferenceException {
 
-		int state = SintaxScanner.getState(expression);
+		int state = SintaxScanner.getState(expression.trim());
 		String mainExpression;
 
 		switch (state) {
@@ -38,6 +37,10 @@ public class Interpreter {
 		case 6:{//evaluar variable
 			return VariableFactory.getVariable(expression);
 		}
+		
+		case 7: { //dato primitivo
+			return new Data(Data.castValue(expression));
+		}
 
 		}
 
@@ -52,13 +55,15 @@ public class Interpreter {
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 * @throws ReferenceException
 	 */
-	private String operateSubexpressions(String expression, int argumentsNumber)
+	private static String operateSubexpressions(String expression, int argumentsNumber)
 			throws InvalidExpression, ReferenceException {
-		
-		String arguments, operatedExpression;
+
+		String arguments = "", operatedExpression;
 
 		try {
-			arguments = Operations.getListParameters(expression, argumentsNumber);
+			for (String argument : Operations.getListParameters(expression, argumentsNumber)) {
+				arguments += " " + argument;
+			}
 			operatedExpression = Operations.getListBody(expression, argumentsNumber);
 		} catch (NullPointerException ex) {
 			throw new InvalidExpression();
@@ -100,10 +105,11 @@ public class Interpreter {
 
 	/**
 	 * Metodo que permite obtener las (expresiones) hermanas.
+	 * 
 	 * @param expressionContent
 	 * @return String[].
 	 */
-	public String[] getChildExpressions(String expressionContent) {
+	public static String[] getChildExpressions(String expressionContent) {
 
 		ArrayList<String> expressions = new ArrayList<>();
 

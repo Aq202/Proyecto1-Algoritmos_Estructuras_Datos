@@ -11,12 +11,13 @@ public class SintaxScanner {
 	 * realizar.
 	 * 
 	 * @param expression. String
-	 * @return int. 0: operacion aritmetica. 1: nueva variable. 6:evaluate variable
+	 * @return int. 0: operacion aritmetica. 1: nueva variable. 6:evaluate variable, 7: valor primitivo
 	 */
 	public static int getState(String expression) {
 
 		System.out.println(expression);
-		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\)", expression))
+		//^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\)      EXPRESION ANTERIOR
+		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+([^()\"']+|(\\(.*\\))+)+\\)", expression))
 			return 1;
 		// verifica si es la instruccion (setq name value), donde value puede ser un
 		// valor o una expresion a evaluar
@@ -29,7 +30,14 @@ public class SintaxScanner {
 		if (match("^\\(\\s*cond\\s+(\\(\\(.*\\)\\s+\\(.*\\)\\))+\\)", expression))
 			return 4;
 		if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
+		
+		//Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
+		if(match("^[^()\"' ]+$", expression))
 			return 6;
+		
+		//Valores primitivos  numeros, strings
+		if(match("^(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\"]*\")|('[^']*'))+$", expression))
+			return 7;
 
 		return 0;
 	}
