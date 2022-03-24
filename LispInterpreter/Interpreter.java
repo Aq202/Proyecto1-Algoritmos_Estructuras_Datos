@@ -24,6 +24,19 @@ public class Interpreter {
 			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2);
 			return Operations.assignVariable(mainExpression);
 		}
+		
+		case 4:{ // Instruccion write
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+			return Operations.print(mainExpression);
+		}
+		
+		case 5:{ //Instruccion QUOTE
+			if(expression.charAt(0)=='(')
+				mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+			else
+				mainExpression = operateSubexpressions(expression,1);
+			return Operations.quote(mainExpression);
+		}
 
 		case 6: {// evaluar variable
 			return VariableFactory.getVariable(expression);
@@ -46,6 +59,8 @@ public class Interpreter {
 			throws InvalidExpression, ReferenceException {
 		
 		String arguments, operatedExpression;
+		boolean nested = false;
+		Data data;
 
 		try {
 			arguments = Operations.getListParameters(expression, argumentsNumber);
@@ -61,7 +76,12 @@ public class Interpreter {
 		while (regexMatches.length > matchIndex && !regexMatches[matchIndex].equals(expression.trim())) {
 
 			String valueToOverwrite = regexMatches[matchIndex];
-			String newValue = operate(regexMatches[matchIndex]).toString();
+			String newValue;
+			if(!isNested(arguments, valueToOverwrite))
+				return (arguments + " " + operatedExpression);
+			data = operate(regexMatches[matchIndex]);
+			nested = data.getDescription() != null && data.getDescription().equals("quote") ? false : true;
+			newValue = operate(regexMatches[matchIndex]).toString();
 			operatedExpression = operatedExpression.replaceFirst(Pattern.quote(valueToOverwrite),
 					Matcher.quoteReplacement(newValue));
 
@@ -69,22 +89,24 @@ public class Interpreter {
 
 		}
 
-		// obtener "Strings", 'strings' y variables
-		final String childElements_regex = "(\"[^\"]*\")|('[^']*')|((?<!\")[a-z][^\"'() ]*(?!\"))";
-		String[] childElements = SintaxScanner.evaluateRegex(childElements_regex, operatedExpression);
+		if(nested) {
+			// obtener "Strings", 'strings' y variables
+			final String childElements_regex = "(\"[^\"]*\")|('[^']*')|((?<!\")[a-z][^\"'() ]*(?!\"))";
+			String[] childElements = SintaxScanner.evaluateRegex(childElements_regex, operatedExpression);
 
-		for (String element : childElements) {
+			for (String element : childElements) {
 
-			if (!Data.isString(element)) {
-				// evaluar variable
-				String variableValue = operate(element).toString();
-				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(element),
-						Matcher.quoteReplacement(variableValue));
-			}
+				if (!Data.isString(element)) {
+					// evaluar variable
+					String variableValue = operate(element).toString();
+					operatedExpression = operatedExpression.replaceFirst(Pattern.quote(element),
+							Matcher.quoteReplacement(variableValue));
+				}
+			}	
 		}
 
 		// return full expression
-		return (arguments + " " + Operations.getListContent(operatedExpression.trim()).trim());
+		return (arguments + " " + operatedExpression.trim());
 
 	}
 
@@ -127,7 +149,7 @@ public class Interpreter {
 						// si no hay una expresion padre, anadir contenido
 						if (parenthesesCount == 0) {
 							// expressions.add(childExpression.trim());
-							childExpression = "";
+							childExpression = quoteFormat(childExpression) ? childExpression : "";
 						}
 
 						parenthesesCount++;
@@ -152,6 +174,29 @@ public class Interpreter {
 
 		}
 		return expressions.toArray(new String[expressions.size()]);
+	}
+	
+	/**
+	 * Verifica si la operacion a realizar es anidada o no
+	 * @param argument, subExpression
+	 * @return boolean.
+	 */
+	private boolean isNested(String argument, String subExpression) {
+		String[] notNested = {"quote","'"};
+		if(Arrays.asList(notNested).contains(argument) && !(subExpression.contains("quote") || subExpression.contains("'")))
+			return false;
+		return true;
+	}
+	
+	/**
+	 * Verifica si la expresion contiene uno o varios single quote.
+	 * @param childExpression
+	 * @return boolean.
+	 */
+	private boolean quoteFormat(String childExpression) {
+		if(SintaxScanner.match("'+", childExpression))
+			return true;
+		return false;
 	}
 
 }

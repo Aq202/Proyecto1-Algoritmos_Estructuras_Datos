@@ -10,13 +10,16 @@ public class Main{
 		
 		Scanner sc = new Scanner(System.in);
 		
-		String expression = "(+ 56 54 (- 1 2 ( + 3 2)))";
-		//interpreter.operate(expression);
+		String expression = "(write (quote \"nil\"))";
+		try {
+			Data data = interpreter.operate(expression);
+			if(data.getDescription() != null && data.getDescription().equals("print"))
+				System.out.println(data.getValue());
+		} catch (InvalidExpression | ReferenceException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
 		
 		//System.out.println(result);
-		
-		double h = 0.1;
-		System.out.println((int) h);
 		
 		sc.close();
 	}

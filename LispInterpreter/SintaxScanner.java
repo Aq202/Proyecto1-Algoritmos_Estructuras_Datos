@@ -25,6 +25,18 @@ public class SintaxScanner {
 				expression))
 			return 2;
 		
+		// Write
+		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
+			return 4;
+		
+		// Quote
+		if(match("^\\s*\\(quote\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$", expression))
+			return 5;
+		
+		// Single quote
+		if(match("^\\s*'+((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))$", expression))
+			return 5;
+		
 		if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
 			return 6;
 

@@ -32,6 +32,52 @@ public class Operations {
 		}
 
 	}
+	
+	/**
+	 * 
+	 * @param expressionContent. El contenido sin () de la expresion quote
+	 * @return Data
+	 * @throws InvalidExpression
+	 */
+	public static Data quote(String expressionContent) throws InvalidExpression{
+		String parameter;
+		
+		try {
+			parameter = SintaxScanner.evaluateRegex("\\s*(?<=(quote\\s|'))((\\(.+\\))|(.+))", expressionContent)[0].trim();
+			if(Data.isNumber(parameter))
+				return new Data(Integer.parseInt(parameter), "quote");
+			else if(Data.isString(parameter))
+				return new Data(parameter.substring(1, parameter.length()-1), "quote");
+			else if(Data.isBoolean(parameter)) {
+				boolean value = parameter.equals("t") ? true : false;
+				return new Data(value,"quote");
+			}
+			else
+				return new Data(parameter,"quote");
+		} catch (IndexOutOfBoundsException ex) {
+			throw new InvalidExpression();
+		} catch (NullPointerException ex) {
+			throw new InvalidExpression();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param expressionContent. El contenido sin () de la expresion write
+	 * @return Data
+	 * @throws InvalidExpression
+	 */
+	public static Data print(String expressionContent) throws InvalidExpression{
+		String print;
+		try {
+			print = SintaxScanner.evaluateRegex("(?<=write)\\s+((\\(.*\\))|([^ ]))+", expressionContent)[0].trim();
+			return new Data(print,"print");
+		} catch (IndexOutOfBoundsException ex) {
+			throw new InvalidExpression();
+		} catch (NullPointerException ex) {
+			throw new InvalidExpression();
+		}
+	}
 
 	/**
 	 * 

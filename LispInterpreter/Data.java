@@ -25,8 +25,9 @@ public class Data {
 	
 	@Override
 	public String toString() {
+		if(value instanceof Boolean)
+			return (Boolean)value == true ? "T" : "NIL";
 		return value != null ? value+"" : null;
-		
 	}
 	
 	public static boolean isNumber(String expression) {
@@ -60,5 +61,18 @@ public class Data {
 
 		return false;
 	}
-
+	
+	public static boolean isBoolean(String expression) {
+		String[] matches = SintaxScanner.evaluateRegex("(?<!\\\\S)(t)|(nil)(?!\\\\S)", expression);
+		
+		// verificar si hay booleanos en la expresion
+		if(matches.length > 0) {
+			
+			//el boolean corresponde a toda la cadena
+			if(expression.trim().equals(matches[0].trim()))
+				return true;
+		}
+		
+		return false;
+	}
 }
