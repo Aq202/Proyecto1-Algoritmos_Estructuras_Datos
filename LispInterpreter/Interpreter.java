@@ -239,5 +239,14 @@ public class Interpreter {
 			return true;
 		return false;
 	}
+	
+	public static Data fileToRow(String[] fileContent) {
+		String row = "";
+		for(String line : fileContent) {
+			if(!line.equals(null))
+				row += line.trim();
+		}
+		return new Data(row);
+	}
 
 }
