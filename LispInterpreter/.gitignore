@@ -6,3 +6,5 @@
 /InvalidExpression.class
 /VariableFactory.class
 /ReferenceException.class
+/Function.class
+/IndeterminateObject.class

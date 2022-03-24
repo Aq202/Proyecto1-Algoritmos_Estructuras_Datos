@@ -12,17 +12,15 @@ import LispInterpreter.VariableFactory;
 
 class InterpreterTests {
 
-	private Interpreter interpreter;
 
 	public InterpreterTests() {
-		interpreter = new Interpreter();
 	}
 
 	@Test
 	void arithmeticTest() {
 
 		try {
-			assertEquals(24, Integer.parseInt(interpreter.operate("(+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) )").toString()));
+			assertEquals(24, Integer.parseInt(Interpreter.operate("(+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) )").toString()));
 			//assertEquals(72.0, Double.parseDouble(interpreter.operate("(* (- 9.5 0.5) 8)").toString()));
 		} catch (InvalidExpression e1) {
 			System.out.println("Operacion invalida");
@@ -32,7 +30,7 @@ class InterpreterTests {
 		}
 
 		try {
-			assertEquals("24", interpreter.operate("(+ 5 * 4 (+ 1 2 (/ 25 5) (+ 3 4)) )").toString());
+			assertEquals("24", Interpreter.operate("(+ 5 * 4 (+ 1 2 (/ 25 5) (+ 3 4)) )").toString());
 			fail();
 		} catch (InvalidExpression e) {
 			System.out.println("Resultado esperado test: " + e.toString());
@@ -45,9 +43,9 @@ class InterpreterTests {
 	@Test
 	void assignVariable() {
 		try {
-			interpreter.operate("(setq var1 (+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) ))");
-			interpreter.operate("(setq var2 2.14)");
-			interpreter.operate("(setq var3 \"hola mundo!\")");
+			Interpreter.operate("(setq var1 (+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) ))");
+			Interpreter.operate("(setq var2 2.14)");
+			Interpreter.operate("(setq var3 \"hola mundo!\")");
 
 			assertEquals(24, Integer.parseInt(VariableFactory.getVariable("var1").toString()));
 			assertEquals(2.14, Double.parseDouble(VariableFactory.getVariable("var2").toString()));
@@ -63,10 +61,10 @@ class InterpreterTests {
 	@Test
 	void operationWithVariable() {
 		try {
-			interpreter.operate("(setq numero 10)");
-			assertEquals(15, Integer.parseInt(interpreter.operate("(+ numero 5 )").toString()));
-			assertEquals(25.5, Double.parseDouble(interpreter.operate("(+ 0.5 (setq name 25) )").toString()));
-			assertEquals(22, Integer.parseInt(String.valueOf(interpreter.operate("(+ 3 (setq nombre (+ 1 5)) (+ 1 5 (+ 1 nombre)))"))));
+			Interpreter.operate("(setq numero 10)");
+			assertEquals(15, Integer.parseInt(Interpreter.operate("(+ numero 5 )").toString()));
+			assertEquals(25.5, Double.parseDouble(Interpreter.operate("(+ 0.5 (setq name 25) )").toString()));
+			assertEquals(22, Integer.parseInt(String.valueOf(Interpreter.operate("(+ 3 (setq nombre (+ 1 5)) (+ 1 5 (+ 1 nombre)))"))));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			fail("OperationWithVariableError "+e);
