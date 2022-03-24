@@ -31,7 +31,8 @@ public class Interpreter {
 		}
 		
 		case 4:{
-			mainExpression = (operateSubexpressions(Operations.getListContent(expression), 1));
+			mainExpression = Operations.getListBody(expression, 1);
+			String arguments[] = getChildExpressions(mainExpression);
 			
 		}
 		case 6:{//evaluar variable
