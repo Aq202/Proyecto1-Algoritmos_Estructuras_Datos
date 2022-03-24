@@ -11,6 +11,8 @@ public class Function {
 	private String[] functionParameters;
 
 	public Function(String expression) throws InvalidExpression {
+		
+		if(expression == null) throw new InvalidExpression();
 
 		this.expression = Operations.getListContent(expression);
 		this.name = getName();
@@ -52,7 +54,7 @@ public class Function {
 	private String getVariableTemporaryName(String variableName) throws InvalidExpression {
 
 		String name = variableName + "@" + this.getName();
-		double cont = 1;
+		double cont = 0.001;
 		while (VariableFactory.contains(name + (this.hashCode() * cont))) {
 			cont += 0.001;
 		}

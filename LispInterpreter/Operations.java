@@ -1,6 +1,7 @@
 package LispInterpreter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -125,6 +126,27 @@ public class Operations {
 		return total;
 	}
 
+	public static Data evaluateFunction(String expression) throws ReferenceException, InvalidExpression {
+		expression = getListContent(expression);
+
+		String[] expressionParams = getListParameters(expression, 1);
+
+		String functionName = expressionParams[0];
+		Data variableValue = VariableFactory.getVariable(functionName.trim());
+
+		// validar que se trate de una funcion
+		if (!(variableValue.getValue() instanceof Function))
+			throw new InvalidExpression(functionName + "no es una funcion.");
+
+		Function func = (Function) variableValue.getValue();
+
+		String operatedFunctionParams = Interpreter.operateSubexpressions(expression, 1);
+		final String primitiveValues_regex = "(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\\\"]*\")|('[^']*'))+";
+		String[] functionParamValues = SintaxScanner.evaluateRegex(primitiveValues_regex, operatedFunctionParams);
+
+		return func.execute(functionParamValues);
+	}
+
 	/**
 	 * Retorna el contenido de una expresion sin los () de hasta afuera. Si no los
 	 * tiene retorna la expresion original.
@@ -134,7 +156,7 @@ public class Operations {
 	 * @throws IndexOutOfBoundsException
 	 */
 	public static String getListContent(String expression) throws IndexOutOfBoundsException {
-
+		expression = expression.trim();
 		String[] match = SintaxScanner.evaluateRegex("(?<=^\\().+(?=\\)$)", expression);
 		return match.length > 0 ? match[0] : expression;
 	}

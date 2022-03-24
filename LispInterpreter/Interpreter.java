@@ -11,7 +11,7 @@ public class Interpreter {
 
 	public static Data operate(String expression) throws InvalidExpression, ReferenceException {
 
-		int state = SintaxScanner.getState(expression.trim());
+		int state = SintaxScanner.getState(expression);
 		String mainExpression;
 
 		switch (state) {
@@ -20,15 +20,25 @@ public class Interpreter {
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
 		case 2: { // nueva variable
-			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2);
+			mainExpression = operateSubexpressions(expression, 2);
 			return Operations.assignVariable(mainExpression);
+		}
+
+		case 4: { // Nueva funcion
+			Function func = new Function(expression);
+			return VariableFactory.newVariable(func.getName(), func);
+		}
+		
+		case 5:{ //evaluar funcion
+			
+			return Operations.evaluateFunction(expression);
 		}
 
 		case 6: {// evaluar variable
 			return VariableFactory.getVariable(expression);
 		}
-		
-		case 7: { //dato primitivo
+
+		case 7: { // dato primitivo
 			return new Data(Data.castValue(expression));
 		}
 
@@ -45,7 +55,8 @@ public class Interpreter {
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 * @throws ReferenceException
 	 */
-	private static String operateSubexpressions(String expression, int argumentsNumber)
+	
+	public static String operateSubexpressions(String expression, int argumentsNumber)
 			throws InvalidExpression, ReferenceException {
 
 		String arguments = "", operatedExpression;
