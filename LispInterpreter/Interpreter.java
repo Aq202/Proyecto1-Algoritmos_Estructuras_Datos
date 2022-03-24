@@ -58,16 +58,40 @@ public class Interpreter {
 			return Operations.quote(mainExpression);
 		}
 
-		case 9: { // evaluar funcion
+		case 9:{ //operacion logica
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
+			return new Data (Operations.booleanOperation(mainExpression));
+		}
+		
+		case 10:{ //COND
+			mainExpression = Operations.getListBody(expression, 1);
+			String clauses[] = getChildExpressions(mainExpression);
+			for (String clause : clauses) {
+				clause = Operations.getListContent(clause);
+				String condition = getChildExpressions(clause)[0];
+				String action = getChildExpressions(clause)[1];
+				Data result = operate(condition);
+				if (result.toString().equals("T")) {
+					return new Data (operate(action));
+				}
+			}
+			return null;
+		}
+		case 11:{ //EQUAL
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1, true);
+			String equalExpression = mainExpression.replace("equal", "=");
+			return new Data (Operations.booleanOperation(equalExpression));
+		}
 
+		case 12: { // evaluar funcion
 			return Operations.evaluateFunction(expression);
 		}
 
-		case 10: {// evaluar variable
+		case 13: {// evaluar variable
 			return VariableFactory.getVariable(expression);
 		}
 
-		case 11: { // dato primitivo
+		case 14: { // dato primitivo
 			return new Data(Data.castValue(expression));
 		}
 
