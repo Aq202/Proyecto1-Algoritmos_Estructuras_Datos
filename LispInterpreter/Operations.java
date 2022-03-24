@@ -45,15 +45,35 @@ public class Operations {
 		try {
 			parameter = SintaxScanner.evaluateRegex("\\s*(?<=(quote\\s|'))((\\(.+\\))|(.+))", expressionContent)[0].trim();
 			if(Data.isNumber(parameter))
-				return new Data(Integer.parseInt(parameter), "quote");
+				return new Data(Integer.parseInt(parameter), "notNested");
 			else if(Data.isString(parameter))
-				return new Data(parameter.substring(1, parameter.length()-1), "quote");
+				return new Data(parameter.substring(1, parameter.length()-1), "notNested");
 			else if(Data.isBoolean(parameter)) {
 				boolean value = parameter.equals("t") ? true : false;
-				return new Data(value,"quote");
+				return new Data(value,"notNested");
 			}
 			else
-				return new Data(parameter,"quote");
+				return new Data(parameter,"notNested");
+		} catch (IndexOutOfBoundsException ex) {
+			throw new InvalidExpression();
+		} catch (NullPointerException ex) {
+			throw new InvalidExpression();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param expressionContent. El contenido sin () de la expresion atom
+	 * @return Data
+	 * @throws InvalidExpression
+	 */
+	public static Data checkAtom(String expressionContent) throws InvalidExpression{
+		String parameter;
+		try {
+			if(SintaxScanner.match("atom\\s+\\(.+\\)",expressionContent))
+				return new Data(false,"notNested");
+			else
+				return new Data(true,"notNested");
 		} catch (IndexOutOfBoundsException ex) {
 			throw new InvalidExpression();
 		} catch (NullPointerException ex) {

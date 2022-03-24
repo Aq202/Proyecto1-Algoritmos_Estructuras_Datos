@@ -10,7 +10,7 @@ public class Main{
 		
 		Scanner sc = new Scanner(System.in);
 		
-		String expression = "(write (quote \"nil\"))";
+		String expression = "(write (atom '(+ 2 5)))";
 		try {
 			Data data = interpreter.operate(expression);
 			if(data.getDescription() != null && data.getDescription().equals("print"))

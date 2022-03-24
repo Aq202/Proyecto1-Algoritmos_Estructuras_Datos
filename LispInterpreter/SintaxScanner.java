@@ -25,6 +25,10 @@ public class SintaxScanner {
 				expression))
 			return 2;
 		
+		//Atom
+		if(match("^\\s*\\(atom\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
+			return 3;
+		
 		// Write
 		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
 			return 4;

@@ -25,6 +25,11 @@ public class Interpreter {
 			return Operations.assignVariable(mainExpression);
 		}
 		
+		case 3: {
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+			return Operations.checkAtom(mainExpression);
+		}
+		
 		case 4:{ // Instruccion write
 			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
 			return Operations.print(mainExpression);
@@ -80,7 +85,7 @@ public class Interpreter {
 			if(!isNested(arguments, valueToOverwrite))
 				return (arguments + " " + operatedExpression);
 			data = operate(regexMatches[matchIndex]);
-			nested = data.getDescription() != null && data.getDescription().equals("quote") ? false : true;
+			nested = data.getDescription() != null && data.getDescription().equals("notNested") ? false : true;
 			newValue = operate(regexMatches[matchIndex]).toString();
 			operatedExpression = operatedExpression.replaceFirst(Pattern.quote(valueToOverwrite),
 					Matcher.quoteReplacement(newValue));
