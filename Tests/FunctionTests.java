@@ -25,6 +25,9 @@ class FunctionTests {
 			
 			Interpreter.operate("(defun op(var1 var2 var3) (setq res1 (+ var1 var2)) (* res1 var3) )");
 			assertEquals(90, Integer.parseInt(Interpreter.operate("(op 1 2 (op 1 4 6))").toString()));
+			
+			Interpreter.operate("(defun function(var1) var1)");
+			assertEquals("'Hola a todos!'", Interpreter.operate("(function 'Hola a todos!')").toString());
 		} catch (Exception e) {
 			fail("Function error: " + e);
 		}

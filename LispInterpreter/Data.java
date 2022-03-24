@@ -25,6 +25,7 @@ public class Data {
 
 	@Override
 	public String toString() {
+		
 		return value != null ? value + "" : null;
 
 	}
@@ -88,7 +89,7 @@ public class Data {
 
 			// si tiene formato "String" o 'String"
 			if (Data.isString(value))
-				return value.substring(1, value.length() - 1); // elimina las comillas
+				return value;
 
 			return new IndeterminateObject(value);
 		}
