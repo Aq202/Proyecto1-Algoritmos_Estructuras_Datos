@@ -74,7 +74,7 @@ class InterpreterTests {
 	@Test
 	void condOperation() {
 		try {
-			interpreter.operate("(cond (1 < 10) (setq num 1) (setq num 2))");
+			Interpreter.operate("(cond ((< 1 10) (setq num 1)) ((< 1 10) (setq num 2)))");
 		} catch (Exception e) {
 			fail(e);
 		}

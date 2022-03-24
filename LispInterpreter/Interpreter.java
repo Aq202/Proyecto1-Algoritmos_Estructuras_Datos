@@ -24,16 +24,26 @@ public class Interpreter {
 			return Operations.assignVariable(mainExpression);
 		}
 		
-		case 3:{
+		case 3:{ //operacion logica
 			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
 			return new Data (Operations.booleanOperation(mainExpression));
 		}
 		
-		case 4:{
+		case 4:{ //COND
 			mainExpression = Operations.getListBody(expression, 1);
-			String arguments[] = getChildExpressions(mainExpression);
-			
+			String clauses[] = getChildExpressions(mainExpression);
+			for (String clause : clauses) {
+				clause = Operations.getListContent(clause);
+				String condition = getChildExpressions(clause)[0];
+				String action = getChildExpressions(clause)[1];
+				Data result = operate(condition);
+				if (result.toString().equals("T")) {
+					return new Data (operate(action));
+				}
+			}
+			return null;
 		}
+		
 		case 6:{//evaluar variable
 			return VariableFactory.getVariable(expression);
 		}
