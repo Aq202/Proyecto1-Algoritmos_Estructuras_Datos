@@ -63,17 +63,40 @@ public class Operations {
 	
 	/**
 	 * 
-	 * @param expressionContent. El contenido sin () de la expresion atom
+	 * @param expressionContent. El contenido sin () de la expresion list
 	 * @return Data
 	 * @throws InvalidExpression
 	 */
-	public static Data checkAtom(String expressionContent) throws InvalidExpression{
-		String parameter;
+	public static Data toList(String expressionContent) throws InvalidExpression{
+		String list;
 		try {
-			if(SintaxScanner.match("atom\\s+\\(.+\\)",expressionContent))
-				return new Data(false,"notNested");
+			list = SintaxScanner.evaluateRegex("(?<=list)\\s+((\\(.*\\))|([^ ]))+", expressionContent)[0].trim();
+			if(Data.isBoolean(list))
+				return new Data(list.equals("t") ? "(T)" : "(NIL)");
+			return new Data("("+list+")");
+		} catch (IndexOutOfBoundsException ex) {
+			throw new InvalidExpression();
+		} catch (NullPointerException ex) {
+			throw new InvalidExpression();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param expressionContent. El contenido sin () de la expresion atom y lisp
+	 * @return Data
+	 * @throws InvalidExpression
+	 */
+	public static Data checkAtom(String expressionContent, String predicate) throws InvalidExpression{
+		String parameter;
+		boolean result;
+		try {
+			if(SintaxScanner.match("(atom|lisp)\\s+\\(.+\\)",expressionContent))
+				result = false;
 			else
-				return new Data(true,"notNested");
+				result = true;
+			result = predicate.equals("atom") ? result : !result;
+			return new Data(result);
 		} catch (IndexOutOfBoundsException ex) {
 			throw new InvalidExpression();
 		} catch (NullPointerException ex) {
@@ -91,6 +114,8 @@ public class Operations {
 		String print;
 		try {
 			print = SintaxScanner.evaluateRegex("(?<=write)\\s+((\\(.*\\))|([^ ]))+", expressionContent)[0].trim();
+			if(Data.isBoolean(print))
+				return new Data(print.toLowerCase().equals("t") ? "T" : "NIL","print");
 			return new Data(print,"print");
 		} catch (IndexOutOfBoundsException ex) {
 			throw new InvalidExpression();

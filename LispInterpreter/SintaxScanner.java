@@ -29,20 +29,28 @@ public class SintaxScanner {
 		if(match("^\\s*\\(atom\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
 			return 3;
 		
+		//Listp
+		if(match("^\\s*\\(listp\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
+			return 4;
+		
+		//List
+		if(match("^\\(\\s*list\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$",expression))
+			return 5;
+		
 		// Write
 		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
-			return 4;
+			return 6;
 		
 		// Quote
 		if(match("^\\s*\\(quote\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$", expression))
-			return 5;
+			return 7;
 		
 		// Single quote
 		if(match("^\\s*'+((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))$", expression))
-			return 5;
+			return 7;
 		
 		if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
-			return 6;
+			return 8;
 
 		return 0;
 	}

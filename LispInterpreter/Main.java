@@ -10,11 +10,17 @@ public class Main{
 		
 		Scanner sc = new Scanner(System.in);
 		
-		String expression = "(write (atom '(+ 2 5)))";
+		String expression = "(setq s 10)\n(write (quote nil))";
+		String [] lines = null;
 		try {
-			Data data = interpreter.operate(expression);
-			if(data.getDescription() != null && data.getDescription().equals("print"))
-				System.out.println(data.getValue());
+			if(expression.contains("\n"))
+				lines = expression.split("\n");
+			else lines[0] = expression;
+			for(String l : lines) {
+				Data data = interpreter.operate(l);
+				if(data.getDescription() != null && data.getDescription().contains("print"))
+					System.out.println(data.getValue());
+			}
 		} catch (InvalidExpression | ReferenceException e) {
 			System.out.println("Error: " + e.getMessage());
 		}

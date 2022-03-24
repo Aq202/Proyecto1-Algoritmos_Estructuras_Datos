@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class Interpreter {
 
-	public static final String[] RESERVER_WORDS = { "setq" };
+	public static final String[] RESERVER_WORDS = {"setq","list","lisp","t","nil","atom","write","cond"};
 
 	public Data operate(String expression) throws InvalidExpression, ReferenceException {
 
@@ -25,17 +25,27 @@ public class Interpreter {
 			return Operations.assignVariable(mainExpression);
 		}
 		
-		case 3: {
+		case 3: {// predicado Atom
 			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
-			return Operations.checkAtom(mainExpression);
+			return Operations.checkAtom(mainExpression, "atom");
 		}
 		
-		case 4:{ // Instruccion write
+		case 4:{ // Predicado lisp
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+			return Operations.checkAtom(mainExpression, "lisp");
+		}
+		
+		case 5: {// Predicado list
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+			return Operations.toList(mainExpression);
+		}
+		
+		case 6:{ // Instruccion write
 			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
 			return Operations.print(mainExpression);
 		}
 		
-		case 5:{ //Instruccion QUOTE
+		case 7:{ //Instruccion QUOTE
 			if(expression.charAt(0)=='(')
 				mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
 			else
@@ -43,7 +53,7 @@ public class Interpreter {
 			return Operations.quote(mainExpression);
 		}
 
-		case 6: {// evaluar variable
+		case 8: {// evaluar variable
 			return VariableFactory.getVariable(expression);
 		}
 
@@ -85,8 +95,9 @@ public class Interpreter {
 			if(!isNested(arguments, valueToOverwrite))
 				return (arguments + " " + operatedExpression);
 			data = operate(regexMatches[matchIndex]);
-			nested = data.getDescription() != null && data.getDescription().equals("notNested") ? false : true;
+			nested = data.getDescription() != null && data.getDescription().contains("notNested") ? false : true;
 			newValue = operate(regexMatches[matchIndex]).toString();
+			newValue = newValue.equals("t") || newValue.equals("nil") ? "\"" +newValue+"\"" : newValue;
 			operatedExpression = operatedExpression.replaceFirst(Pattern.quote(valueToOverwrite),
 					Matcher.quoteReplacement(newValue));
 
@@ -103,7 +114,9 @@ public class Interpreter {
 
 				if (!Data.isString(element)) {
 					// evaluar variable
-					String variableValue = operate(element).toString();
+					String variableValue = element;
+					if(!Arrays.asList(RESERVER_WORDS).contains(element.toLowerCase()))
+						variableValue = operate(element).toString();
 					operatedExpression = operatedExpression.replaceFirst(Pattern.quote(element),
 							Matcher.quoteReplacement(variableValue));
 				}
