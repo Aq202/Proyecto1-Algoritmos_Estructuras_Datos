@@ -1,6 +1,7 @@
 package LispInterpreter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,12 +12,15 @@ public class SintaxScanner {
 	 * realizar.
 	 * 
 	 * @param expression. String
-	 * @return int. 0: operacion aritmetica. 1: nueva variable. 6:evaluate variable
+	 * @return int. 0: operacion aritmetica. 1: nueva variable. 4:definicion de
+	 *         funciones. 5:evaluar una funcion. 6:evaluate variable, 7: valor primitivo
 	 */
 	public static int getState(String expression) {
 
-		System.out.println(expression);
-		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\)", expression))
+		expression = expression != null ? expression.trim() : null;
+
+		// ^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\) EXPRESION ANTERIOR
+		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+([^()\"']+|(\\(.*\\))+)+\\)", expression))
 			return 1;
 		// verifica si es la instruccion (setq name value), donde value puede ser un
 		// valor o una expresion a evaluar
@@ -28,29 +32,43 @@ public class SintaxScanner {
 		//Atom
 		if(match("^\\s*\\(atom\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
 			return 3;
+
+		// Definicion de funciones
+		if (match("^\\(\\s*defun\\s+[^()\"']+\\([^()\"']*\\).+\\)$", expression))
+			return 4;
+		
+		//evaluar funcion
+		if(match("^\\(\\s*((?!write)|(?!quote)|(?!setq)|(?!list)|(?!listp)|(?!atom)|(?!cond)|(?!defun)|(?!setq)).[^()\\\"']+\\s+.*\\)$", expression))
+			if(!Arrays.asList(Interpreter.RESERVER_WORDS).contains(evaluateRegex("(?:\\w+)",expression)[0]))
+				return 5;
 		
 		//Listp
 		if(match("^\\s*\\(listp\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
-			return 4;
+			return 6;
 		
 		//List
 		if(match("^\\(\\s*list\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$",expression))
-			return 5;
+			return 7;
 		
 		// Write
 		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
-			return 6;
+			return 8;
 		
 		// Quote
 		if(match("^\\s*\\(quote\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$", expression))
-			return 7;
+			return 9;
 		
 		// Single quote
 		if(match("^\\s*'+((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))$", expression))
-			return 7;
+			return 9;
 		
-		if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
-			return 8;
+		// Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
+		if (match("^[^()\"' ]+$", expression))
+			return 10;
+		
+		// Valores primitivos numeros, strings
+		if (match("^(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\"]*\")|('[^']*'))+$", expression))
+			return 11;
 
 		return 0;
 	}

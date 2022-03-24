@@ -1,5 +1,7 @@
 package LispInterpreter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,8 +29,13 @@ public class Operations {
 		} else {
 
 			// operacion con enteros
-			return integerOperation(operator, operationBody);
+			double result = doubleOperation(operator, operationBody);
 
+			if (Data.isDouble(String.valueOf(result))) {
+				return result;
+			} else {
+				return (int) result;
+			}
 		}
 
 	}
@@ -91,7 +98,7 @@ public class Operations {
 		String parameter;
 		boolean result;
 		try {
-			if(SintaxScanner.match("(atom|lisp)\\s+\\(.+\\)",expressionContent))
+			if(SintaxScanner.match("(atom|listp)\\s+\\(.+\\)",expressionContent))
 				result = false;
 			else
 				result = true;
@@ -113,7 +120,7 @@ public class Operations {
 	public static Data print(String expressionContent) throws InvalidExpression{
 		String print;
 		try {
-			print = SintaxScanner.evaluateRegex("(?<=write)\\s+((\\(.*\\))|([^ ]))+", expressionContent)[0].trim();
+			print = SintaxScanner.evaluateRegex("(?<=write)\\s+((\\(.*\\))|(\\\".*\\\")|([^ ]))+", expressionContent)[0].trim();
 			if(Data.isBoolean(print))
 				return new Data(print.toLowerCase().equals("t") ? "T" : "NIL","print");
 			return new Data(print,"print");
@@ -130,7 +137,7 @@ public class Operations {
 	 * @return
 	 * @throws InvalidExpression
 	 */
-	public static Data assignVariable(String expressionContent) throws InvalidExpression {
+	public static Data assignVariable(String expressionContent) throws InvalidExpression, ReferenceException {
 
 		String variableName, value;
 
@@ -138,7 +145,6 @@ public class Operations {
 			variableName = SintaxScanner.evaluateRegex("(?<=setq)\\s+(\\d*[a-z]\\w*)+", expressionContent)[0];
 			// selecciona la ultima palabra/numero o "String"
 			value = SintaxScanner.evaluateRegex("((\"[^\"]*\")|('[^']*')|[^\\s]+)\\s*$", expressionContent.trim())[0];
-
 		} catch (IndexOutOfBoundsException ex) {
 			throw new InvalidExpression();
 		} catch (NullPointerException ex) {
@@ -146,7 +152,13 @@ public class Operations {
 		}
 
 		try {
+			if(!Data.isString(value) && !Data.isBoolean(value) && !Data.isNumber(value))
+				value = (String) VariableFactory.getVariable(value).getValue();
+			if(Data.isBoolean(value))
+				value = value.toLowerCase().equals("t") ? "T" : "NIL";
 			return VariableFactory.newVariable(variableName, value);
+		} catch(ReferenceException ex) {
+			throw ex;
 		} catch (Exception ex) {
 			throw new InvalidExpression();
 		}
@@ -190,7 +202,10 @@ public class Operations {
 							break;
 						}
 						case "/": {
-							total /= value;
+							if (value != 0)
+								total /= value;
+							else
+								throw new InvalidExpression("Division por cero invalida.");
 							break;
 						}
 						default:
@@ -207,8 +222,25 @@ public class Operations {
 		return total;
 	}
 
-	private static int integerOperation(String operator, String expressionBody) throws InvalidExpression {
-		return (int) doubleOperation(operator, expressionBody);
+	public static Data evaluateFunction(String expression) throws ReferenceException, InvalidExpression {
+		expression = getListContent(expression);
+
+		String[] expressionParams = getListParameters(expression, 1);
+
+		String functionName = expressionParams[0];
+		Data variableValue = VariableFactory.getVariable(functionName.trim());
+
+		// validar que se trate de una funcion
+		if (!(variableValue.getValue() instanceof Function))
+			throw new InvalidExpression(functionName + "no es una funcion.");
+
+		Function func = (Function) variableValue.getValue();
+
+		String operatedFunctionParams = Interpreter.operateSubexpressions(expression, 1,true);
+		final String primitiveValues_regex = "(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\\\"]*\")|('[^']*'))+";
+		String[] functionParamValues = SintaxScanner.evaluateRegex(primitiveValues_regex, operatedFunctionParams);
+
+		return func.execute(functionParamValues);
 	}
 
 	/**
@@ -220,51 +252,49 @@ public class Operations {
 	 * @throws IndexOutOfBoundsException
 	 */
 	public static String getListContent(String expression) throws IndexOutOfBoundsException {
-
+		expression = expression.trim();
 		String[] match = SintaxScanner.evaluateRegex("(?<=^\\().+(?=\\)$)", expression);
 		return match.length > 0 ? match[0] : expression;
 	}
 
 	/**
-	 * Retorna los argumentos(n primeras "palabras" en una lista), separados por
-	 * espacios. Eje: 1 parametro en (+ 1 2) es +.
+	 * Retorna los argumentos n primeras palabras o (param) sin hijos.
 	 * 
-	 * @param expression
+	 * @param expressionContent
 	 * @param argumentsNumber
-	 * @return String. Parametros separados por " ".
+	 * @return String[]
 	 */
-	public static String getListParameters(String expression, int argumentsNumber) throws NullPointerException{
+	public static String[] getListParameters(String expressionContent, int argumentsNumber) throws NullPointerException {
 
-		String operatedExpression = Operations.getListContent(expression), arguments = "";
+		String operatedExpression = expressionContent;
+		ArrayList<String> arguments = new ArrayList<String>();
 
-		final String firstWord_regex = "^\\s*[^\\s]+";
+		final String firstWord_regex = "^\\s*([^\\s()]+|(\\([^()\"']*\\)))";
 
 		for (int i = 0; i < argumentsNumber; i++) {
 
 			// get and save arguments(first word)
 			String[] argumentMatches = SintaxScanner.evaluateRegex(firstWord_regex, operatedExpression);
-			
+
 			if (argumentMatches != null && argumentMatches.length > 0) {
-				arguments += " " + argumentMatches[0].trim();
-				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(argumentMatches[0]), Matcher.quoteReplacement(""));
+				arguments.add(argumentMatches[0].trim());
+				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(argumentMatches[0]),
+						Matcher.quoteReplacement(""));
 			} else
 				break;
 		}
 
-		return arguments.trim();
+		return arguments.toArray(new String[arguments.size()]);
 	}
 
-	public static String getListBody(String expression, int argumentsNumber) throws NullPointerException{
+	public static String getListBody(String expressionContent, int argumentsNumber) throws NullPointerException {
+;
 
-		expression = Operations.getListContent(expression);
-		
-		String[] parameters = getListParameters(expression, argumentsNumber).split(" ");
+		String[] parameters = getListParameters(expressionContent, argumentsNumber);
 		for (String param : parameters) {
-			expression = expression.replaceFirst(Pattern.quote(param), Matcher.quoteReplacement(""));
+			expressionContent = expressionContent.replaceFirst(Pattern.quote(param), Matcher.quoteReplacement(""));
 		}
-		return expression.trim();
+		return expressionContent.trim();
 	}
-	
-	
 
 }

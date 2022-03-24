@@ -6,18 +6,16 @@ public class Main{
 	
 	public static void main(String[] args) {
 		
-		Interpreter interpreter = new Interpreter();
-		
 		Scanner sc = new Scanner(System.in);
 		
-		String expression = "(setq s 10)\n(write (quote nil))";
-		String [] lines = null;
+		String expression = "(write (+ 5 * 4 (+ 1 2 (/ 25 5) (+ 3 4)) ))";
+		String [] lines = new String[1];
 		try {
 			if(expression.contains("\n"))
 				lines = expression.split("\n");
 			else lines[0] = expression;
 			for(String l : lines) {
-				Data data = interpreter.operate(l);
+				Data data = Interpreter.operate(l);
 				if(data.getDescription() != null && data.getDescription().contains("print"))
 					System.out.println(data.getValue());
 			}

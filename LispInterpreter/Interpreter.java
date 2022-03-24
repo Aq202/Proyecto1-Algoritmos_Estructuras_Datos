@@ -1,6 +1,5 @@
 package LispInterpreter;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -8,53 +7,67 @@ import java.util.regex.Pattern;
 
 public class Interpreter {
 
-	public static final String[] RESERVER_WORDS = {"setq","list","lisp","t","nil","atom","write","cond"};
+	public static final String[] RESERVER_WORDS = {"setq","list","listp","t","nil","atom","write","cond","defun","quote"};
 
-	public Data operate(String expression) throws InvalidExpression, ReferenceException {
+	public static Data operate(String expression) throws InvalidExpression, ReferenceException {
 
 		int state = SintaxScanner.getState(expression);
 		String mainExpression;
 
 		switch (state) {
 		case 1: { // operacion aritmetica
-			mainExpression = operateSubexpressions(expression, 1);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1,true);
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
 		case 2: { // nueva variable
-			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2, true);
 			return Operations.assignVariable(mainExpression);
 		}
 		
 		case 3: {// predicado Atom
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1, true);
 			return Operations.checkAtom(mainExpression, "atom");
 		}
 		
-		case 4:{ // Predicado lisp
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+		case 4: { // Nueva funcion
+			Function func = new Function(expression);
+			return VariableFactory.newVariable(func.getName(), func);
+		}
+		
+		case 5:{ //evaluar funcion
+			
+			return Operations.evaluateFunction(expression);
+		}
+		
+		case 6:{ // Predicado lisp
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1, true);
 			return Operations.checkAtom(mainExpression, "lisp");
 		}
 		
-		case 5: {// Predicado list
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+		case 7: {// Predicado list
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1,true);
 			return Operations.toList(mainExpression);
 		}
 		
-		case 6:{ // Instruccion write
-			mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+		case 8:{ // Instruccion write
+			mainExpression = operateSubexpressions(Operations.getListContent(expression),1,true);
 			return Operations.print(mainExpression);
 		}
 		
-		case 7:{ //Instruccion QUOTE
+		case 9:{ //Instruccion QUOTE
 			if(expression.charAt(0)=='(')
-				mainExpression = operateSubexpressions(Operations.getListContent(expression),1);
+				mainExpression = operateSubexpressions(Operations.getListContent(expression),1,false);
 			else
-				mainExpression = operateSubexpressions(expression,1);
+				mainExpression = operateSubexpressions(expression,1,false);
 			return Operations.quote(mainExpression);
 		}
-
-		case 8: {// evaluar variable
+		
+		case 10: {// evaluar variable
 			return VariableFactory.getVariable(expression);
+		}
+
+		case 11: { // dato primitivo
+			return new Data(Data.castValue(expression));
 		}
 
 		}
@@ -66,29 +79,35 @@ public class Interpreter {
 	/**
 	 * Se encarga de ejecutar las operaciones hijas de una expresion.
 	 * 
-	 * @param expression
+	 * @param expressionContent
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 * @throws ReferenceException
 	 */
-	private String operateSubexpressions(String expression, int argumentsNumber)
+	
+	public static String operateSubexpressions(String expressionContent, int argumentsNumber, boolean nested)
 			throws InvalidExpression, ReferenceException {
 		
-		String arguments, operatedExpression;
-		boolean nested = false;
+		String arguments = "", operatedExpression;
 		Data data;
 
 		try {
-			arguments = Operations.getListParameters(expression, argumentsNumber);
-			operatedExpression = Operations.getListBody(expression, argumentsNumber);
+			for (String argument : Operations.getListParameters(expressionContent, argumentsNumber)) {
+				arguments += " " + argument;
+			}
+			operatedExpression = Operations.getListBody(expressionContent, argumentsNumber);
 		} catch (NullPointerException ex) {
 			throw new InvalidExpression();
+		}
+		if(arguments.trim().length()>1 && arguments.trim().charAt(0) == '\'') {
+			operatedExpression = arguments.trim().substring(1,arguments.trim().length());
+			arguments = "'";
 		}
 
 		// selecciona las (operaciones), "strings", 'strings' o variables.
 		String[] regexMatches = getChildExpressions(operatedExpression);
 
 		int matchIndex = 0;
-		while (regexMatches.length > matchIndex && !regexMatches[matchIndex].equals(expression.trim())) {
+		while (regexMatches.length > matchIndex) {
 
 			String valueToOverwrite = regexMatches[matchIndex];
 			String newValue;
@@ -117,6 +136,7 @@ public class Interpreter {
 					String variableValue = element;
 					if(!Arrays.asList(RESERVER_WORDS).contains(element.toLowerCase()))
 						variableValue = operate(element).toString();
+					//variableValue = variableValue instanceof String ? "\"" + variableValue + "\"" : variableValue;
 					operatedExpression = operatedExpression.replaceFirst(Pattern.quote(element),
 							Matcher.quoteReplacement(variableValue));
 				}
@@ -130,10 +150,11 @@ public class Interpreter {
 
 	/**
 	 * Metodo que permite obtener las (expresiones) hermanas.
+	 * 
 	 * @param expressionContent
 	 * @return String[].
 	 */
-	public String[] getChildExpressions(String expressionContent) {
+	public static String[] getChildExpressions(String expressionContent) {
 
 		ArrayList<String> expressions = new ArrayList<>();
 
@@ -189,6 +210,8 @@ public class Interpreter {
 				childExpression += currentChar;
 
 			}
+			if(childExpression.length()>0 && childExpression.charAt(0) == '\'')
+				expressions.add(childExpression.trim());
 
 		}
 		return expressions.toArray(new String[expressions.size()]);
@@ -199,9 +222,9 @@ public class Interpreter {
 	 * @param argument, subExpression
 	 * @return boolean.
 	 */
-	private boolean isNested(String argument, String subExpression) {
+	private static boolean isNested(String argument, String subExpression) {
 		String[] notNested = {"quote","'"};
-		if(Arrays.asList(notNested).contains(argument) && !(subExpression.contains("quote") || subExpression.contains("'")))
+		if(Arrays.asList(notNested).contains(argument.trim()) && !(subExpression.contains("quote") || subExpression.contains("'")))
 			return false;
 		return true;
 	}
@@ -211,7 +234,7 @@ public class Interpreter {
 	 * @param childExpression
 	 * @return boolean.
 	 */
-	private boolean quoteFormat(String childExpression) {
+	private static boolean quoteFormat(String childExpression) {
 		if(SintaxScanner.match("'+", childExpression))
 			return true;
 		return false;
