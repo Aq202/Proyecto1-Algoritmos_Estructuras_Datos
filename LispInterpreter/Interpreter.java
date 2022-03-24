@@ -16,11 +16,11 @@ public class Interpreter {
 
 		switch (state) {
 		case 1: { // operacion aritmetica
-			mainExpression = operateSubexpressions(expression, 1);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
 			return new Data(Operations.arithmeticOperation(mainExpression));
 		}
 		case 2: { // nueva variable
-			mainExpression = operateSubexpressions(expression, 2);
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 2);
 			return Operations.assignVariable(mainExpression);
 		}
 
@@ -51,21 +51,21 @@ public class Interpreter {
 	/**
 	 * Se encarga de ejecutar las operaciones hijas de una expresion.
 	 * 
-	 * @param expression
+	 * @param expressionContent
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 * @throws ReferenceException
 	 */
 	
-	public static String operateSubexpressions(String expression, int argumentsNumber)
+	public static String operateSubexpressions(String expressionContent, int argumentsNumber)
 			throws InvalidExpression, ReferenceException {
 
 		String arguments = "", operatedExpression;
 
 		try {
-			for (String argument : Operations.getListParameters(expression, argumentsNumber)) {
+			for (String argument : Operations.getListParameters(expressionContent, argumentsNumber)) {
 				arguments += " " + argument;
 			}
-			operatedExpression = Operations.getListBody(expression, argumentsNumber);
+			operatedExpression = Operations.getListBody(expressionContent, argumentsNumber);
 		} catch (NullPointerException ex) {
 			throw new InvalidExpression();
 		}
@@ -74,7 +74,7 @@ public class Interpreter {
 		String[] regexMatches = getChildExpressions(operatedExpression);
 
 		int matchIndex = 0;
-		while (regexMatches.length > matchIndex && !regexMatches[matchIndex].equals(expression.trim())) {
+		while (regexMatches.length > matchIndex) {
 
 			String valueToOverwrite = regexMatches[matchIndex];
 			String newValue = operate(regexMatches[matchIndex]).toString();

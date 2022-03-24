@@ -27,11 +27,20 @@ public class VariableFactory {
 	}
 
 	public static Data getVariable(String name) throws ReferenceException, IllegalArgumentException {
-		
+
 		if(name == null) throw new IllegalArgumentException();
 
 		if (variables.containsKey(name))
 			return variables.get(name);
+		else
+			throw new ReferenceException("Variable " + name + " no tiene valor.");
+	}
+	
+	public static Data deleteVariable(String name) throws ReferenceException {
+		if(name == null) throw new IllegalArgumentException();
+		
+		if (variables.containsKey(name))
+			return variables.remove(name);
 		else
 			throw new ReferenceException("Variable " + name + " no tiene valor.");
 	}

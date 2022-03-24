@@ -164,13 +164,13 @@ public class Operations {
 	/**
 	 * Retorna los argumentos n primeras palabras o (param) sin hijos.
 	 * 
-	 * @param expression
+	 * @param expressionContent
 	 * @param argumentsNumber
 	 * @return String[]
 	 */
-	public static String[] getListParameters(String expression, int argumentsNumber) throws NullPointerException {
+	public static String[] getListParameters(String expressionContent, int argumentsNumber) throws NullPointerException {
 
-		String operatedExpression = Operations.getListContent(expression);
+		String operatedExpression = expressionContent;
 		ArrayList<String> arguments = new ArrayList<String>();
 
 		final String firstWord_regex = "^\\s*([^\\s()]+|(\\([^()\"']*\\)))";
@@ -191,15 +191,14 @@ public class Operations {
 		return arguments.toArray(new String[arguments.size()]);
 	}
 
-	public static String getListBody(String expression, int argumentsNumber) throws NullPointerException {
+	public static String getListBody(String expressionContent, int argumentsNumber) throws NullPointerException {
+;
 
-		expression = Operations.getListContent(expression);
-
-		String[] parameters = getListParameters(expression, argumentsNumber);
+		String[] parameters = getListParameters(expressionContent, argumentsNumber);
 		for (String param : parameters) {
-			expression = expression.replaceFirst(Pattern.quote(param), Matcher.quoteReplacement(""));
+			expressionContent = expressionContent.replaceFirst(Pattern.quote(param), Matcher.quoteReplacement(""));
 		}
-		return expression.trim();
+		return expressionContent.trim();
 	}
 
 }

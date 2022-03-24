@@ -11,8 +11,9 @@ public class Function {
 	private String[] functionParameters;
 
 	public Function(String expression) throws InvalidExpression {
-		
-		if(expression == null) throw new InvalidExpression();
+
+		if (expression == null)
+			throw new InvalidExpression();
 
 		this.expression = Operations.getListContent(expression);
 		this.name = getName();
@@ -54,11 +55,11 @@ public class Function {
 	private String getVariableTemporaryName(String variableName) throws InvalidExpression {
 
 		String name = variableName + "@" + this.getName();
-		double cont = 0.001;
-		while (VariableFactory.contains(name + (this.hashCode() * cont))) {
-			cont += 0.001;
+		int cont = this.hashCode();
+		while (VariableFactory.contains(name + cont)) {
+			cont++;
 		}
-		return name + (this.hashCode() * cont);
+		return name + cont;
 	}
 
 	public Data execute(String... params) throws InvalidExpression, ReferenceException {
@@ -73,21 +74,41 @@ public class Function {
 		if (params != null && params.length > functionParameters.length)
 			throw new InvalidExpression(String.format("Muchos argumentos para ejecutar funcion %s.", getName()));
 
+		ArrayList<String> temporaryVariables = new ArrayList<>();
+		String operatedExpression = functionBodyExpression;
+
 		for (int index = 0; index < functionParameters.length; index++) {
 
 			String temporaryVariable = getVariableTemporaryName(functionParameters[index]);
+			temporaryVariables.add(temporaryVariable); // almacenar clave
 
 			// almacenar variable temporal
 			VariableFactory.newVariable(temporaryVariable, params[index]);
 
 			// reemplazar nombre por variable temporal
-			functionBodyExpression =  functionBodyExpression.replaceFirst(Pattern.quote(functionParameters[index]),
+			operatedExpression = operatedExpression.replaceAll(Pattern.quote(functionParameters[index]),
 					Matcher.quoteReplacement(temporaryVariable));
 
 		}
+
+		// ejecutar funcion
+		String mainExpression = Interpreter.operateSubexpressions(operatedExpression, 0);
+		String[] primitiveResults = SintaxScanner.evaluateRegex(
+				"(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\\\"]*\")|('[^']*'))+", mainExpression);
 		
-		//ejecutar funcion
-		return Interpreter.operate(functionBodyExpression);
+		// eliminar valores temporales
+		for (String variable : temporaryVariables) {
+			VariableFactory.deleteVariable(variable);
+		}
+		
+		//obtener ultimo retorno
+		Data result;
+		if (primitiveResults != null && primitiveResults.length > 0)
+			result = new Data(primitiveResults[primitiveResults.length - 1]);
+		else
+			throw new InvalidExpression();
+
+		return result;
 
 	}
 
