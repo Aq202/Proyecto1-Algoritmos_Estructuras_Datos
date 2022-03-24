@@ -126,5 +126,17 @@ class InterpreterTests {
 			fail("OperationWithVariableError "+e);
 		}
 	}
+	
+	@Test
+	void listTest() {
+		try {
+			assertEquals("(15)", Interpreter.operate("(list 15)").toString());
+			assertEquals("(num)", Interpreter.operate("(list 'num)").toString());
+			assertEquals("((+ 1 (* 9 (- 8 4))))", Interpreter.operate("(list '(+ 1 (* 9 (- 8 4))))").toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
+		}
+	}
 
 }
