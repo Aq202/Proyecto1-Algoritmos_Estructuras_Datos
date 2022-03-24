@@ -28,8 +28,13 @@ public class Operations {
 		} else {
 
 			// operacion con enteros
-			return integerOperation(operator, operationBody);
+			double result = doubleOperation(operator, operationBody);
 
+			if (Data.isDouble(String.valueOf(result))) {
+				return result;
+			} else {
+				return (int) result;
+			}
 		}
 
 	}
@@ -100,7 +105,10 @@ public class Operations {
 							break;
 						}
 						case "/": {
-							total /= value;
+							if (value != 0)
+								total /= value;
+							else
+								throw new InvalidExpression("Division por cero invalida.");
 							break;
 						}
 						default:
@@ -115,10 +123,6 @@ public class Operations {
 
 		}
 		return total;
-	}
-
-	private static int integerOperation(String operator, String expressionBody) throws InvalidExpression {
-		return (int) doubleOperation(operator, expressionBody);
 	}
 
 	/**
@@ -136,12 +140,13 @@ public class Operations {
 	}
 
 	/**
-	 * Retorna los argumentos n primeras palabras o (param) sin hijos. 
+	 * Retorna los argumentos n primeras palabras o (param) sin hijos.
+	 * 
 	 * @param expression
 	 * @param argumentsNumber
 	 * @return String[]
 	 */
-	public static String[] getListParameters(String expression, int argumentsNumber) throws NullPointerException{
+	public static String[] getListParameters(String expression, int argumentsNumber) throws NullPointerException {
 
 		String operatedExpression = Operations.getListContent(expression);
 		ArrayList<String> arguments = new ArrayList<String>();
@@ -152,10 +157,11 @@ public class Operations {
 
 			// get and save arguments(first word)
 			String[] argumentMatches = SintaxScanner.evaluateRegex(firstWord_regex, operatedExpression);
-			
+
 			if (argumentMatches != null && argumentMatches.length > 0) {
 				arguments.add(argumentMatches[0].trim());
-				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(argumentMatches[0]), Matcher.quoteReplacement(""));
+				operatedExpression = operatedExpression.replaceFirst(Pattern.quote(argumentMatches[0]),
+						Matcher.quoteReplacement(""));
 			} else
 				break;
 		}
@@ -163,17 +169,15 @@ public class Operations {
 		return arguments.toArray(new String[arguments.size()]);
 	}
 
-	public static String getListBody(String expression, int argumentsNumber) throws NullPointerException{
+	public static String getListBody(String expression, int argumentsNumber) throws NullPointerException {
 
 		expression = Operations.getListContent(expression);
-		
+
 		String[] parameters = getListParameters(expression, argumentsNumber);
 		for (String param : parameters) {
 			expression = expression.replaceFirst(Pattern.quote(param), Matcher.quoteReplacement(""));
 		}
 		return expression.trim();
 	}
-	
-	
 
 }
