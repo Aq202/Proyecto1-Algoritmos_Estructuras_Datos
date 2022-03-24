@@ -40,5 +40,14 @@ class OperationsTest {
 			fail (e);
 		} 
 	}
+	
+	@Test
+	void testEqual() {
+		try {
+			assertEquals(true, Operations.booleanOperation(" = 3 3"));
+		} catch (InvalidExpression e) {
+			fail (e);
+		} 
+	}
 
 }

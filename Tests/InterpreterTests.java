@@ -72,15 +72,24 @@ class InterpreterTests {
 	}
 	
 	@Test
-	void condOperation() {
+	void condTest() {
 		try {
-			Interpreter.operate("(cond ((< 1 10) (setq num 1)) ((< 1 10) (setq num 2)))");
+			assertEquals("1", Interpreter.operate("(cond ((< 1 10) (setq num 1)) ((< 1 10) (setq num 2)))").toString());
 		} catch (Exception e) {
 			fail(e);
 		}
 		
 	}
 	
+	@Test
+	void equalTest() {
+		try {
+			assertEquals("T", Interpreter.operate("(equal (setq num 3) 3)").toString());
+		} catch (Exception e) {
+			fail(e);
+		}
+		
+	}
 	
 
 }

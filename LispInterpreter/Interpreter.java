@@ -43,7 +43,11 @@ public class Interpreter {
 			}
 			return null;
 		}
-		
+		case 5:{ //EQUAL
+			mainExpression = operateSubexpressions(Operations.getListContent(expression), 1);
+			String equalExpression = mainExpression.replace("equal", "=");
+			return new Data (Operations.booleanOperation(equalExpression));
+		}
 		case 6:{//evaluar variable
 			return VariableFactory.getVariable(expression);
 		}

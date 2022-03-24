@@ -29,6 +29,8 @@ public class SintaxScanner {
 			return 3;
 		if (match("^\\(\\s*cond\\s+(\\(\\(.*\\)\\s+\\(.*\\)\\))+\\)", expression))
 			return 4;
+		if (match("^\\(\\s*equal\\s+.+\\s+.+\\)", expression))
+			return 5;
 		if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
 		
 		//Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
