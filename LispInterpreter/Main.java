@@ -14,7 +14,7 @@ public class Main {
 	 * @return String.
 	 */
 	private static String getInstruction(Scanner sc) {
-		System.out.print(">> ");
+		System.out.print("\n>> ");
 		return sc.nextLine();
 	}
 
@@ -22,7 +22,7 @@ public class Main {
 		Scanner sc = new Scanner(System.in);
 
 		System.out.println("LISP INTERPRETER V1.0.0");
-		System.out.println("Ingresa --help para ver las instrucciones.\n");
+		System.out.println("Ingresa --help para ver las instrucciones.");
 
 		String currentInstruccion = "";
 

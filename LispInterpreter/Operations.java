@@ -128,7 +128,7 @@ public class Operations {
 					.trim();
 			
 			//printa values
-			System.out.println(print);
+			System.out.print(print);
 			
 			Data result;
 			
