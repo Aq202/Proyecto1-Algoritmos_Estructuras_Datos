@@ -64,7 +64,7 @@ public class Interpreter {
 		}
 		
 		case 10:{ //COND
-			mainExpression = Operations.getListBody(expression, 1);
+			mainExpression = Operations.getListBody(Operations.getListContent(expression), 1);
 			String clauses[] = getChildExpressions(mainExpression);
 			for (String clause : clauses) {
 				clause = Operations.getListContent(clause);
