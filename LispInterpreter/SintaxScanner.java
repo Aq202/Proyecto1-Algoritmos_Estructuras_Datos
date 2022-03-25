@@ -61,7 +61,7 @@ public class SintaxScanner {
 			return 9;
 		
 		//cond
-		if (match("^\\(\\s*cond\\s+(\\(\\(.*\\)\\s+\\(.*\\)\\))+\\)", expression))
+		if (match("^\\(\\s*cond\\s+(\\(\\s*((\\(.*\\))|T|(NIL))\\s+\\S+.*)+\\)$", expression))
 			return 10;
 		
 		//equal
@@ -76,14 +76,16 @@ public class SintaxScanner {
 			if(!Arrays.asList(Interpreter.RESERVER_WORDS).contains(evaluateRegex("(?:\\w+)",expression)[0]))
 				return 12;
 		
+		// Valores primitivos numeros, strings, booleans (T, NIL)
+				if (match("^(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\\\"]*\")|('[^']*')|T|(NIL))+$", expression))
+					return 13;
+		
 		// Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
 		//evaluar variable
 		if (match("^[^()\"' ]+$", expression))
-			return 13;
-		
-		// Valores primitivos numeros, strings
-		if (match("^(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\"]*\")|('[^']*'))+$", expression))
 			return 14;
+		
+		
 
 		return 0;
 	}

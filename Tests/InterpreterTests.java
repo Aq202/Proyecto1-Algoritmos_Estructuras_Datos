@@ -16,7 +16,7 @@ class InterpreterTests {
 	public InterpreterTests() {
 	}
 
-	//@Test
+	@Test
 	void arithmeticTest() {
 
 		try {
@@ -40,7 +40,7 @@ class InterpreterTests {
 
 	}
 
-	//@Test
+	@Test
 	void assignVariable() {
 		try {
 			Interpreter.operate("(setq var1 (+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) ))");
@@ -58,7 +58,7 @@ class InterpreterTests {
 		}
 	}
 
-	//@Test
+	@Test
 	void operationWithVariable() {
 		try {
 			Interpreter.operate("(setq numero 10)");
@@ -71,7 +71,7 @@ class InterpreterTests {
 		}
 	}
 	
-	//@Test
+	@Test
 	void quoteTest() {
 		try {
 			assertEquals("num", Interpreter.operate("(quote num)").toString());
@@ -86,7 +86,7 @@ class InterpreterTests {
 		}
 	}
 	
-	//@Test
+	@Test
 	void writeTest() {
 		try {
 			assertEquals("\"num\"", Interpreter.operate("(write \"num\")").toString());
@@ -101,7 +101,7 @@ class InterpreterTests {
 		}
 	}
 	
-	//@Test
+	@Test
 	void atomTest() {
 		try {
 			assertEquals("NIL", Interpreter.operate("(atom '(+ 1 2))").toString());
@@ -117,14 +117,16 @@ class InterpreterTests {
 	@Test
 	void condTest() {
 		try {
+			assertEquals(1, Integer.parseInt(Interpreter.operate("(cond ((T) 1))").toString()));
 			assertEquals("1", Interpreter.operate("(cond ((< 1 10) (setq num 1)) ((< 1 10) (setq num 2)))").toString());
+			assertEquals(5, Integer.parseInt(Interpreter.operate("(cond ( (< 3 2) 3) ((< 3 1) 2) (T (+ 3 2))  )").toString()));
 		} catch (Exception e) {
-			fail(e);
+			fail(e.getMessage());
 		}
 		
 	}
 	
-	//@Test
+	@Test
 	void equalTest() {
 		try {
 			assertEquals("T", Interpreter.operate("(equal (setq num 3) 3)").toString());
@@ -134,7 +136,7 @@ class InterpreterTests {
 		
 	}
 	
-	//@Test
+	@Test
 	void listpTest() {
 		try {
 			assertEquals("T", Interpreter.operate("(listp '(+ 1 2))").toString());
@@ -147,7 +149,7 @@ class InterpreterTests {
 		}
 	}
 	
-	//@Test
+	@Test
 	void listTest() {
 		try {
 			assertEquals("(15)", Interpreter.operate("(list 15)").toString());
