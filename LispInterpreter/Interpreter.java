@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class Interpreter {
 
 	public static final String[] RESERVER_WORDS = { "setq", "list", "listp", "t", "nil", "atom", "write", "cond",
-			"defun", "quote" };
+			"defun", "quote", "lisp" };
 
 	public static Data operate(String expression) throws InvalidExpression, ReferenceException {
 

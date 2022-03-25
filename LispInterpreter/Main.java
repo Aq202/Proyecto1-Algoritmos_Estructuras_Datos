@@ -1,96 +1,83 @@
 package LispInterpreter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
-public class Main{
-	
+public class Main {
+
+
+	/**
+	 * Se encarga de solicitar al usuario que ingrese un dato.
+	 * 
+	 * @param sc      Scanner
+	 * @param message
+	 * @return String.
+	 */
+	private static String getInstruction(Scanner sc) {
+		System.out.print(">> ");
+		return sc.nextLine();
+	}
+
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		String menu;
-		
-		System.out.println("Bienvenido al interprete de LISP!");
-		boolean end = false;
-		while(!end) {
-			menu = """
-					\n1. Indicar el nombre del archivo a ejecutar.
-					2. Salir""";
-			int option = pregunta(menu, 2, sc);
+
+		System.out.println("LISP INTERPRETER V1.0.0");
+		System.out.println("Ingresa --help para ver las instrucciones.\n");
+
+		String currentInstruccion = "";
+
+		while (true) {
+			currentInstruccion = getInstruction(sc).trim();
 			
-			switch(option) { 
-			case 1: //Encontrar el archivo "program.txt"
-				String[] fileContent = null;
-				boolean repeat = true;
-				while(repeat) { //Bucle para encontrar el archivo
-					try { //Se encuentra el archivo
-						System.out.println("Ingrese el nombre del archivo donde se encuentra su programa (sin extensión)");
-						String filename = sc.nextLine();
-						fileContent = FileController.readFile(filename);
-						repeat = false;
-					} catch (IOException e) { //Si no se encuentra el archivo
-						System.out.println("\nArchivo no encontrado.\nPor favor, asegurese de que el archivo tenga el nombre correcto y se encuentre en la carpeta que contiene al programa.");
-						System.out.println("Presione enter para volver a buscar el archivo.");
-						sc.nextLine();
+			if(currentInstruccion.length() == 0) continue;
+			if(currentInstruccion.equalsIgnoreCase("exit")) break;
+
+			try {
+
+				// ejecutar archivo
+				if (SintaxScanner.match("lisp\\s+[^~“#%&*:<>?\\/\\\\{|} ]+", currentInstruccion)) {
+
+					String fileName = SintaxScanner.evaluateRegex("[^~“#%&*:<>?\\/\\\\{|} ]+$",
+							currentInstruccion)[0];
+					String[] fileContent;
+					try {
+						fileContent = FileController.readFile(fileName);
+					} catch (IOException e) {
+						throw new Exception(String.format("El archivo %s.lisp no existe en %s\\", fileName, FileController.PATH));
 					}
-				}
-				System.out.println("\nArchivo encontrado");
-				try {
-					String [] program = Interpreter.validFormat(fileContent);
-					for(String row : program) {
-						Data data = Interpreter.operate(row);
+					
+					String[] program = Interpreter.validFormat(fileContent);
+					for (String row : program) {
+						Interpreter.operate(row);
 					}
-				}catch(Exception e) {
-					System.out.println("Error: " + e.getMessage());
+
+				}else if(currentInstruccion.equalsIgnoreCase("--help")) {
+					//help
+					System.out.println("""
+							
+							Instrucciones del interprete:
+							
+								lisp FILE_NAME     -Ejecuta las expresiones contenidas en el archivo currentPath/fileName.lisp 
+								exit               -Finaliza la ejecucion del interprete
+							""");
+				}else {
+					//interpretar expresion
+					System.out.println(Interpreter.operate(currentInstruccion).toString());
 				}
-				break;
-			case 2: //Finaliza el programa
-				System.out.println("Gracias por utilizar el programa!"); 
-				end = true;
-				break;
-			default: //Opcion no valida
-				System.out.println("Opcion no valida");
-				break;
+
+			} catch (Exception e) {
+				
+				if(e instanceof InvalidExpression)
+					System.out.println("\nSYNTAX ERROR: "+e.getMessage());
+				else
+					System.out.println("\nERROR: "+e.getMessage());
+				
 			}
+
 		}
-		/*String expression = "(write (+ 5 * 4 (+ 1 2 (/ 25 5) (+ 3 4)) ))";
-		String [] lines = new String[1];
-		try {
-			if(expression.contains("\n"))
-				lines = expression.split("\n");
-			else lines[0] = expression;
-			for(String l : lines) {
-				Data data = Interpreter.operate(l);
-				if(data.getDescription() != null && data.getDescription().contains("print"))
-					System.out.println(data.getValue());
-			}
-		} catch (InvalidExpression | ReferenceException e) {
-			System.out.println("Error: " + e.getMessage());
-		}
-		
-		//System.out.println(result);*/
-		
+		System.out.println("\nLISP INTERPRETER FINISHED");
 		sc.close();
 	}
-	
-	public static int pregunta(String pregunta, int opciones, Scanner scan)
-	  {
-	      boolean bucle = true;
-	      int respuesta = 0;
-	      try 
-	      {
-	          while(bucle)
-	          {
-	              System.out.println(pregunta);
-	              respuesta = scan.nextInt();
-	              scan.nextLine();
-	              if(respuesta > 0 && respuesta <= opciones) bucle = false;
-	              else System.out.println("\nRepuesta no valida.\n");
-	          }    
-	      } catch (Exception e) {
-	          System.out.println("\nRepuesta no valida. Ingrese solamente numeros.\n");
-	          respuesta = pregunta(pregunta, opciones, scan);
-	      }
-	      return respuesta;
-	  }
-	
+
 }
