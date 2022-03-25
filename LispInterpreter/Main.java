@@ -38,8 +38,6 @@ public class Main{
 					String [] program = Interpreter.validFormat(fileContent);
 					for(String row : program) {
 						Data data = Interpreter.operate(row);
-						if(data.getDescription() != null && data.getDescription().contains("print"))
-							System.out.println(data.getValue());
 					}
 				}catch(Exception e) {
 					System.out.println("Error: " + e.getMessage());

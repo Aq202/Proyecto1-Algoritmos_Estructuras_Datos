@@ -58,7 +58,7 @@ public class Data {
 
 	public static boolean isString(String expression) {
 
-		String[] matches = SintaxScanner.evaluateRegex("(\"[^\"]*\")|('[^']*')", expression);
+		String[] matches = SintaxScanner.evaluateRegex("(\\\"\\\"[^\\\"]*\\\"\\\")|(\\\"[^\\\"]*\\\")|('[^']*')", expression);
 
 		// verificar si hay Strings en la expresion
 		if (matches.length > 0) {
@@ -72,17 +72,12 @@ public class Data {
 	}
 	
 	public static boolean isBoolean(String expression) {
-		String[] matches = SintaxScanner.evaluateRegex("(?<!\\\\S)(t)|(nil)(?!\\\\S)", expression);
 		
-		// verificar si hay booleanos en la expresion
-		if(matches.length > 0) {
-			
-			//el boolean corresponde a toda la cadena
-			if(expression.trim().equals(matches[0].trim()))
-				return true;
-		}
+		if(expression == null) return false;
+		expression = expression.trim();
 		
-		return false;
+		return (expression.equalsIgnoreCase("T") || expression.equalsIgnoreCase("NIL"));
+
 	}
 
 	public static Object castValue(String value) {
@@ -100,6 +95,12 @@ public class Data {
 		} else {
 
 			// valor bool
+			if(isBoolean(value)) {
+				if(value.equalsIgnoreCase("T"))
+					return true;
+				else
+					return false;
+			}
 
 			// si tiene formato "String" o 'String"
 			if (Data.isString(value))

@@ -115,6 +115,28 @@ class InterpreterTests {
 	}
 	
 	@Test
+	void condTest() {
+		try {
+			assertEquals(1, Integer.parseInt(Interpreter.operate("(cond ((T) 1))").toString()));
+			assertEquals("1", Interpreter.operate("(cond ((< 1 10) (setq num 1)) ((< 1 10) (setq num 2)))").toString());
+			assertEquals(5, Integer.parseInt(Interpreter.operate("(cond ( (< 3 2) 3) ((< 3 1) 2) (T (+ 3 2))  )").toString()));
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	@Test
+	void equalTest() {
+		try {
+			assertEquals("T", Interpreter.operate("(equal (setq num 3) 3)").toString());
+		} catch (Exception e) {
+			fail(e);
+		}
+		
+	}
+	
+	@Test
 	void listpTest() {
 		try {
 			assertEquals("T", Interpreter.operate("(listp '(+ 1 2))").toString());
