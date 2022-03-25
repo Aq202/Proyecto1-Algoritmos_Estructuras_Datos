@@ -341,7 +341,7 @@ public class Operations {
 				
 				String condition = Interpreter.operateSubexpressions(Operations.getListParameters(clause, 1)[0],0,true);
 				String action = Operations.getListBody(clause, 1).trim();
-				action = Data.isString(action) ? "\"" + action + "\"" : action;
+				//action = Data.isString(action) ? "\"" + action + "\"" : action;
 				Data result = Interpreter.operate(condition);
 				
 				if(action.equals("")) {
@@ -352,7 +352,7 @@ public class Operations {
 				if (result.toString().equalsIgnoreCase("T")) {
 					if(mainExpression.contains("'"+action.trim())||mainExpression.contains("quote "+action.trim()))
 						return new Data(action.trim(),"notNested");
-					return new Data(Interpreter.operate(action.trim()));
+					return Interpreter.operate(action.trim());
 				}
 			}
 			return new Data(false);
