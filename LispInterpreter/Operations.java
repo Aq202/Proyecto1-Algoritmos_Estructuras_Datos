@@ -121,10 +121,20 @@ public class Operations {
 		try {
 			print = SintaxScanner.evaluateRegex("(?<=write)\\s+((\\(.*\\))|(\\\".*\\\")|([^ ]))+", expressionContent)[0]
 					.trim();
+			
+			//printa values
 			System.out.println(print);
+			
+			Data result;
+			
 			if (Data.isBoolean(print))
-				return new Data(print.toLowerCase().equals("t") ? "T" : "NIL", "print");
-			return new Data(print, "print");
+				result = new Data(print.toLowerCase().equals("t") ? "T" : "NIL", "print");
+			else
+				result = new Data(print, "print");
+			
+			result.blockPrint(); //evita que se imprima en main
+			return result;
+			
 		} catch (IndexOutOfBoundsException ex) {
 			throw new InvalidExpression();
 		} catch (NullPointerException ex) {

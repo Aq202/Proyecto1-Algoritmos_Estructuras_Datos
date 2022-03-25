@@ -4,6 +4,7 @@ public class Data {
 
 	private Object value;
 	private String description;
+	private boolean blockPrint = false;
 
 	public Data(Object value, String description) {
 		this.value = value;
@@ -25,9 +26,9 @@ public class Data {
 
 	@Override
 	public String toString() {
-		if(value instanceof Boolean)
-			return (Boolean)value == true ? "T" : "NIL";
-		return value != null ? value+"" : null;
+		if (value instanceof Boolean)
+			return (Boolean) value == true ? "T" : "NIL";
+		return value != null ? value + "" : null;
 	}
 
 	public static boolean isNumber(String expression) {
@@ -49,16 +50,19 @@ public class Data {
 
 	/**
 	 * Se encarga de verificar si un numero posee decimales diferentes a cero.
+	 * 
 	 * @param expression
 	 * @return
 	 */
 	public static boolean isDouble(String expression) {
-		return SintaxScanner.hasMatches("^([-+]*\\d+\\.(\\d*[1-9]\\d*)+)$", expression != null ? expression.trim() : "");
+		return SintaxScanner.hasMatches("^([-+]*\\d+\\.(\\d*[1-9]\\d*)+)$",
+				expression != null ? expression.trim() : "");
 	}
 
 	public static boolean isString(String expression) {
 
-		String[] matches = SintaxScanner.evaluateRegex("(\\\"\\\"[^\\\"]*\\\"\\\")|(\\\"[^\\\"]*\\\")|('[^']*')", expression);
+		String[] matches = SintaxScanner.evaluateRegex("(\\\"\\\"[^\\\"]*\\\"\\\")|(\\\"[^\\\"]*\\\")|('[^']*')",
+				expression);
 
 		// verificar si hay Strings en la expresion
 		if (matches.length > 0) {
@@ -70,12 +74,13 @@ public class Data {
 
 		return false;
 	}
-	
+
 	public static boolean isBoolean(String expression) {
-		
-		if(expression == null) return false;
+
+		if (expression == null)
+			return false;
 		expression = expression.trim();
-		
+
 		return (expression.equalsIgnoreCase("T") || expression.equalsIgnoreCase("NIL"));
 
 	}
@@ -95,8 +100,8 @@ public class Data {
 		} else {
 
 			// valor bool
-			if(isBoolean(value)) {
-				if(value.equalsIgnoreCase("T"))
+			if (isBoolean(value)) {
+				if (value.equalsIgnoreCase("T"))
 					return true;
 				else
 					return false;
@@ -109,5 +114,21 @@ public class Data {
 			return new IndeterminateObject(value);
 		}
 
+	}
+
+	/**
+	 * Indica que el contenido NO debe de imprimirse en el Main
+	 */
+	public void blockPrint() {
+		this.blockPrint = true;
+	}
+
+	/**
+	 * Indica si el contenido debe de imprimirse en el Main
+	 * 
+	 * @return
+	 */
+	public boolean getBlockPrint() {
+		return this.blockPrint;
 	}
 }
