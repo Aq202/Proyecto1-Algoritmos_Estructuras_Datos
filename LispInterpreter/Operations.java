@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Clase Operations. Posee los metodos necesarios para realizar las operaciones que se indiquen en el interprete.
+ * @author Diego Morales, Erick Guerra, Pablo Zamora
+ * @version 25/03/2022
+ */
 public class Operations {
 
 	/**
-	 * 
-	 * @param expressionContent. Contenido sin () de la expresion aritmetica
-	 *                           principal
-	 * @return
+	 * Metodo arithmeticOperation. Evalua una expresion aritmetica y determina su resultado a partir
+	 * de los operandos que se encuentren en ella.
+	 * @param expressionContent. Contenido sin parentesis de la expresion aritmetica principal
+	 * @return Object. Devuelve el resultado de la expresion como int o double segun corresponda
 	 * @throws InvalidExpression
 	 */
 	public static Object arithmeticOperation(String expressionContent) throws InvalidExpression {
@@ -40,9 +45,9 @@ public class Operations {
 	}
 
 	/**
-	 * 
-	 * @param expressionContent. El contenido sin () de la expresion quote
-	 * @return Data
+	 * Metodo quote. Devuelve una expresion sin evaluarla.
+	 * @param expressionContent. El contenido sin parentesis de la expresion quote
+	 * @return Data. Devuelve un objeto Data con la expresion indicada en su atributo "value" 
 	 * @throws InvalidExpression
 	 */
 	public static Data quote(String expressionContent) throws InvalidExpression {
@@ -68,9 +73,9 @@ public class Operations {
 	}
 
 	/**
-	 * 
+	 * Metodo toList. Permite convertir una ecpresion en una lista.
 	 * @param expressionContent. El contenido sin () de la expresion list
-	 * @return Data
+	 * @return Data Devuelve un objeto data con una lista en su atributo "value"
 	 * @throws InvalidExpression
 	 */
 	public static Data toList(String expressionContent) throws InvalidExpression {
@@ -373,8 +378,7 @@ public class Operations {
 	}
 
 	/**
-	 * Retorna los argumentos n primeras palabras o (param) sin hijos.
-	 * 
+	 * Metodo getListParameters. Retorna los argumentos n primeras palabras o (param) sin hijos.
 	 * @param expressionContent
 	 * @param argumentsNumber
 	 * @return String[]
