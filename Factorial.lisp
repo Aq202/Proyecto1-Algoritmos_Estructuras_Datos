@@ -5,4 +5,4 @@
     )
 )
 
-(write (factorial 4))
+(write (factorial 5))

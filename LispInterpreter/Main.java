@@ -72,7 +72,7 @@ public class Main{
 		sc.close();
 	}
 	
-	public static int pregunta(String pregunta, int opciones, Scanner scan)
+	private static int pregunta(String pregunta, int opciones, Scanner scan)
 	  {
 	      boolean bucle = true;
 	      int respuesta = 0;
