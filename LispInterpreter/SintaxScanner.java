@@ -57,7 +57,7 @@ public class SintaxScanner {
 			return 8;
 		
 		//expresion logica
-		if (match("^\\(\\s*[\\<\\>\\=]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\)", expression))
+		if (match("^\\(\\s*[\\<\\>\\=](\\s+[^()\"' ]+\\s*){2,}\\)$", expression))
 			return 9;
 		
 		//cond

@@ -84,10 +84,19 @@ public class Interpreter {
 			return VariableFactory.getVariable(expression);
 		}
 
-		default: { //revalidar si no es un (primitivo)
+		default: { //buscar opciones
 			String content = Operations.getListContent(expression);
-			if(SintaxScanner.getState(content) == 13)
-				return new Data(content);
+			
+			if(!expression.equals(content)) {
+				
+				//verificar si es un dato primitivo
+				if(SintaxScanner.getState(content) == 13)
+					return new Data(content);
+				
+				//evaluar contenido de la lista
+				return operate(content);
+			}
+			
 		}
 
 		}
@@ -133,9 +142,11 @@ public class Interpreter {
 			String newValue;
 			if (!isNested(arguments, valueToOverwrite))
 				return (arguments + " " + operatedExpression);
+			
 			data = operate(regexMatches[matchIndex]);
+			
 			nested = data.getDescription() != null && data.getDescription().contains("notNested") ? false : true;
-			newValue = operate(regexMatches[matchIndex]).toString();
+			newValue = data.toString();
 			newValue = newValue.equals("t") || newValue.equals("nil") ? "\"" + newValue + "\"" : newValue;
 			operatedExpression = operatedExpression.replaceFirst(Pattern.quote(valueToOverwrite),
 					Matcher.quoteReplacement(newValue));

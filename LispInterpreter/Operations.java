@@ -321,10 +321,11 @@ public class Operations {
 			String mainExpression = Operations.getListBody(expressionContent, 1);
 			String clauses[] = Interpreter.getChildExpressions(mainExpression);
 			for (String clause : clauses) {
+				
+				clause = getListContent(clause);
 
-				clause = Interpreter.operateSubexpressions(Operations.getListContent(clause), 0, true);
-				String condition = Operations.getListParameters(clause, 1)[0];
-				String action = Operations.getListBody(clause, 1);
+				String condition = Interpreter.operateSubexpressions(Operations.getListParameters(clause, 1)[0],0,true);
+				String action = Interpreter.operateSubexpressions(Operations.getListBody(clause, 1),0,true);
 
 				Data result = Interpreter.operate(condition);
 				if (result.toString().equalsIgnoreCase("T")) {
@@ -334,6 +335,7 @@ public class Operations {
 			return new Data(false);
 
 		} catch (IndexOutOfBoundsException ex) {
+			System.out.println("cond" + ex);
 			throw new InvalidExpression();
 		}
 	}
