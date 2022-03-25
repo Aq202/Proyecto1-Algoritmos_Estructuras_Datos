@@ -10,7 +10,7 @@ import LispInterpreter.Operations;
 class OperationsTest {
 
 	@Test
-	void test() {
+	void testArithmetics() {
 
 		try {
 			Operations.arithmeticOperation("+ 4 5 6 8 7");
@@ -33,5 +33,22 @@ class OperationsTest {
 
 	}
 	
+	@Test
+	void testBooleans() {
+		try {
+			assertEquals(true, Operations.booleanOperation("< 1.2 5 6.2"));
+		} catch (InvalidExpression e) {
+			fail (e);
+		} 
+	}
+	
+	@Test
+	void testEqual() {
+		try {
+			assertEquals(true, Operations.booleanOperation(" = 3 3"));
+		} catch (InvalidExpression e) {
+			fail (e);
+		} 
+	}
 
 }

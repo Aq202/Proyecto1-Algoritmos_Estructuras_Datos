@@ -1,6 +1,7 @@
 package LispInterpreter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,31 +19,73 @@ public class SintaxScanner {
 
 		expression = expression != null ? expression.trim() : null;
 
-		// ^\\(\\s*[\\+\\-\\/\\*]\\s+(\\s*\\w*[.]*(\\(.*\\))*)*\\) EXPRESION ANTERIOR
+		// Operacion aritmetica
 		if (match("^\\(\\s*[\\+\\-\\/\\*]\\s+([^()\"']+|(\\(.*\\))+)+\\)", expression))
 			return 1;
-		// verifica si es la instruccion (setq name value), donde value puede ser un
-		// valor o una expresion a evaluar
+
 		// (setq name (operators)|"string"|'String'|variable)
 		if (match("^\\(\\s*setq\\s+(\\d*[a-z]\\w*)\\s*((\\(.+\\))|('[^']*')|(\"[^\"]*\")|[^\\s^\\(^\\)]+)\\s*\\)$",
 				expression))
 			return 2;
+	
+		//Atom
+		if(match("^\\s*\\(atom\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
+			return 3;
 
 		// Definicion de funciones
-		if (match("^\\(\\s*defun\\s+[^()\"']+\\([^()\"']*\\).+\\)$", expression))
+		if (match("^\\(\\s*defun\\s+[^()\\\"']+\\s*\\([^()\\\"']*\\).*\\)$", expression))
 			return 4;
-
-		//evaluar funcion
-		if(match("^\\(\\s*[^()\"']+\\s+.*\\)$", expression))
+				
+		//Listp
+		if(match("^\\s*\\(listp\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$",expression))
 			return 5;
 		
-		// Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
-		if (match("^[^()\"' ]+$", expression))
+		//List
+		if(match("^\\(\\s*list\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$",expression))
 			return 6;
-
-		// Valores primitivos numeros, strings
-		if (match("^(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\"]*\")|('[^']*'))+$", expression))
+		
+		// Write
+		if(match("^\\(\\s*write\\s+'*((\\w+)|(\\(.*\\))|(\\\"[^\\\"]*\\\")|(\\'[^\\']*\\')+)\\)$", expression))
 			return 7;
+		
+		// Quote
+		if(match("^\\s*\\(quote\\s+'*((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))\\)$", expression))
+			return 8;
+		
+		// Single quote
+		if(match("^\\s*'+((\\(.*\\))|(\\\"[^\\\"]*\\\")|('[^\\']*')|(\\w+))$", expression))
+			return 8;
+		
+		//expresion logica
+		if (match("^\\(\\s*[\\<\\>\\=](\\s+[^()\"' ]+\\s*){2,}\\)$", expression))
+			return 9;
+		
+		//cond
+		if (match("^\\(\\s*cond\\s+(\\(\\s*((\\(.*\\))|T|(NIL))\\s*\\S+.*)+\\)$", expression))
+			return 10;
+		
+		//equal
+		if (match("^\\(\\s*equal\\s+.+\\s+.+\\)", expression))
+			return 11;
+		
+		
+		//if(match("(\\b(?<!\")[a-z]\\w*(?!\")\\b)", expression))
+		
+		//evaluar funcion
+		if(match("^\\(\\s*((?!write)|(?!quote)|(?!setq)|(?!list)|(?!listp)|(?!atom)|(?!cond)|(?!defun)|(?!setq)).[^()\\\"']+\\s+.*\\)$", expression))
+			if(!Arrays.asList(Interpreter.RESERVER_WORDS).contains(evaluateRegex("(?:\\w+)",expression)[0]))
+				return 12;
+		
+		// Valores primitivos numeros, strings, booleans (T, NIL)
+				if (match("^(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\\\"\\\"[^\\\"]*\\\"\\\")|(\\\"[^\\\"]*\\\")|('[^']*')|T|(NIL))+$", expression))
+					return 13;
+		
+		// Expresion anterior (\\b(?<!\")[a-z]\\w*(?!\")\\b)
+		//evaluar variable
+		if (match("^[^()\"' ]+$", expression))
+			return 14;
+		
+		
 
 		return 0;
 	}
@@ -50,7 +93,7 @@ public class SintaxScanner {
 	/**
 	 * Se encarga de verificar si una expresion posee coincidencias
 	 * 
-	 * @param regex.     String Expresión regular.
+	 * @param regex.     String Expresiï¿½n regular.
 	 * @param expression
 	 * @return boolean.
 	 */

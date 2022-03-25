@@ -21,7 +21,7 @@ class InterpreterTests {
 
 		try {
 			assertEquals(24, Integer.parseInt(Interpreter.operate("(+ 5 4 (+ 1 2 (/ 25 5) (+ 3 4)) )").toString()));
-			//assertEquals(72.0, Double.parseDouble(interpreter.operate("(* (- 9.5 0.5) 8)").toString()));
+			assertEquals(72.0, Double.parseDouble(Interpreter.operate("(* (- 9.5 0.5) 8)").toString()));
 		} catch (InvalidExpression e1) {
 			System.out.println("Operacion invalida");
 			fail(e1);
@@ -71,6 +71,94 @@ class InterpreterTests {
 		}
 	}
 	
+	@Test
+	void quoteTest() {
+		try {
+			assertEquals("num", Interpreter.operate("(quote num)").toString());
+			assertEquals("num", Interpreter.operate("'num").toString());
+			assertEquals("(+ 1 8 5 3 6)", Interpreter.operate("(quote (+ 1 8 5 3 6))").toString());
+			assertEquals("(+ 1 8 5 3 6)", Interpreter.operate("'(+ 1 8 5 3 6)").toString());
+			assertEquals("(+ (* 9 8 6) (- 9 6))", Interpreter.operate("(quote (+ (* 9 8 6) (- 9 6)))").toString());
+			assertEquals("(+ (* 9 8 6) (- 9 6))", Interpreter.operate("'(+ (* 9 8 6) (- 9 6))").toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
+		}
+	}
 	
+	@Test
+	void writeTest() {
+		try {
+			assertEquals("\"num\"", Interpreter.operate("(write \"num\")").toString());
+			assertEquals("num", Interpreter.operate("(write 'num)").toString());
+			assertEquals("19", Interpreter.operate("(write (+ 8 (- (* 5 3) 4)))").toString());
+			assertEquals("\"19\"", Interpreter.operate("(write \"19\")").toString());
+			assertEquals("\"t\"", Interpreter.operate("(write \"t\")").toString());
+			assertEquals("NIL", Interpreter.operate("(write nil)").toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
+		}
+	}
+	
+	@Test
+	void atomTest() {
+		try {
+			assertEquals("NIL", Interpreter.operate("(atom '(+ 1 2))").toString());
+			assertEquals("T", Interpreter.operate("(atom 'num)").toString());
+			assertEquals("T", Interpreter.operate("(atom (+ 9 (* 18 (+ 6 8))))").toString());
+			assertEquals("NIL", Interpreter.operate("(atom (list 10))").toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
+		}
+	}
+	
+	@Test
+	void condTest() {
+		try {
+			assertEquals(1, Integer.parseInt(Interpreter.operate("(cond ((T) 1))").toString()));
+			assertEquals("1", Interpreter.operate("(cond ((< 1 10) (setq num 1)) ((< 1 10) (setq num 2)))").toString());
+			assertEquals(5, Integer.parseInt(Interpreter.operate("(cond ( (< 3 2) 3) ((< 3 1) 2) (T (+ 3 2))  )").toString()));
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	@Test
+	void equalTest() {
+		try {
+			assertEquals("T", Interpreter.operate("(equal (setq num 3) 3)").toString());
+		} catch (Exception e) {
+			fail(e);
+		}
+		
+	}
+	
+	@Test
+	void listpTest() {
+		try {
+			assertEquals("T", Interpreter.operate("(listp '(+ 1 2))").toString());
+			assertEquals("NIL", Interpreter.operate("(listp 'num)").toString());
+			assertEquals("NIL", Interpreter.operate("(listp (+ 9 (* 18 (+ 6 8))))").toString());
+			assertEquals("T", Interpreter.operate("(listp (list 10))").toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
+		}
+	}
+	
+	@Test
+	void listTest() {
+		try {
+			assertEquals("(15)", Interpreter.operate("(list 15)").toString());
+			assertEquals("(num)", Interpreter.operate("(list 'num)").toString());
+			assertEquals("((+ 1 (* 9 (- 8 4))))", Interpreter.operate("(list '(+ 1 (* 9 (- 8 4))))").toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			fail("OperationWithVariableError "+e);
+		}
+	}
 
 }

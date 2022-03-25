@@ -25,9 +25,9 @@ public class Data {
 
 	@Override
 	public String toString() {
-		
-		return value != null ? value + "" : null;
-
+		if(value instanceof Boolean)
+			return (Boolean)value == true ? "T" : "NIL";
+		return value != null ? value+"" : null;
 	}
 
 	public static boolean isNumber(String expression) {
@@ -58,7 +58,7 @@ public class Data {
 
 	public static boolean isString(String expression) {
 
-		String[] matches = SintaxScanner.evaluateRegex("(\"[^\"]*\")|('[^']*')", expression);
+		String[] matches = SintaxScanner.evaluateRegex("(\\\"\\\"[^\\\"]*\\\"\\\")|(\\\"[^\\\"]*\\\")|('[^']*')", expression);
 
 		// verificar si hay Strings en la expresion
 		if (matches.length > 0) {
@@ -69,6 +69,15 @@ public class Data {
 		}
 
 		return false;
+	}
+	
+	public static boolean isBoolean(String expression) {
+		
+		if(expression == null) return false;
+		expression = expression.trim();
+		
+		return (expression.equalsIgnoreCase("T") || expression.equalsIgnoreCase("NIL"));
+
 	}
 
 	public static Object castValue(String value) {
@@ -86,6 +95,12 @@ public class Data {
 		} else {
 
 			// valor bool
+			if(isBoolean(value)) {
+				if(value.equalsIgnoreCase("T"))
+					return true;
+				else
+					return false;
+			}
 
 			// si tiene formato "String" o 'String"
 			if (Data.isString(value))
@@ -95,5 +110,4 @@ public class Data {
 		}
 
 	}
-
 }

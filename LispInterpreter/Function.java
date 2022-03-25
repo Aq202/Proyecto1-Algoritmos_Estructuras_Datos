@@ -92,9 +92,9 @@ public class Function {
 		}
 
 		// ejecutar funcion
-		String mainExpression = Interpreter.operateSubexpressions(operatedExpression, 0);
+		String mainExpression = Interpreter.operateSubexpressions(operatedExpression, 0,true);
 		String[] primitiveResults = SintaxScanner.evaluateRegex(
-				"(([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))|(\"[^\"]*\")|('[^']*'))+", mainExpression);
+				"(([-+]{0,1}([\\d^.]+)|((\\d+\\\\.\\d+)))|(\\\"[^\\\"]*\\\")|('[^']*')|(\\bNIL\\b|\\bT\\b))+", mainExpression);
 		
 		// eliminar valores temporales
 		for (String variable : temporaryVariables) {
