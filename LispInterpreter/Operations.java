@@ -1,7 +1,6 @@
 package LispInterpreter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -144,9 +143,9 @@ public class Operations {
 		String variableName, value;
 
 		try {
-			variableName = SintaxScanner.evaluateRegex("(?<=setq)\\s+(\\d*[a-z]\\w*)+", expressionContent)[0];
+			variableName = SintaxScanner.evaluateRegex("(?<=setq)\\s+(\\d*[a-z]\\w*)+", expressionContent)[0].trim();
 			// selecciona la ultima palabra/numero o "String"
-			value = SintaxScanner.evaluateRegex("((\"[^\"]*\")|('[^']*')|[^\\s]+)\\s*$", expressionContent.trim())[0];
+			value = SintaxScanner.evaluateRegex("((\"[^\"]*\")|('[^']*')|[^\\s]+)\\s*$", expressionContent.trim())[0].trim();
 		} catch (IndexOutOfBoundsException ex) {
 			throw new InvalidExpression();
 		} catch (NullPointerException ex) {
@@ -326,7 +325,7 @@ public class Operations {
 				clause = getListContent(clause);
 				
 				String condition = Interpreter.operateSubexpressions(Operations.getListParameters(clause, 1)[0],0,true);
-				String action = Interpreter.operateSubexpressions(Operations.getListBody(clause, 1),0,true).trim();
+				String action = Operations.getListBody(clause, 1).trim();
 				action = Data.isString(action) ? "\"" + action + "\"" : action;
 				Data result = Interpreter.operate(condition);
 				

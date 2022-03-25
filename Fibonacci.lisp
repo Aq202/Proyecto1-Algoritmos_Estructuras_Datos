@@ -3,7 +3,7 @@
     (write previous)
     (setq new (+ previous num))
     (setq previous num)
-    (cond ((< new 1000000)
+    (cond ((< new 10)
         (fibonacci new)))
 )
 (fibonacci 1)
