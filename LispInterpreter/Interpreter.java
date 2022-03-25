@@ -240,13 +240,36 @@ public class Interpreter {
 		return false;
 	}
 	
-	public static Data fileToRow(String[] fileContent) {
-		String row = "";
-		for(String line : fileContent) {
-			if(!line.equals(null))
-				row += line.trim();
+	public static String[] validFormat(String[] fileContent) {
+		ArrayList<String> program = new ArrayList<String>();
+		String line = "";
+		for(String row : fileContent) {
+			if(!row.equals(null))
+				line += row.trim();
 		}
-		return new Data(row);
+		if(line.charAt(0) == '\'') {
+			program.add(line);
+			return program.toArray(new String[program.size()]);
+		}
+		if(!line.equals("")) {
+			String expression = "";
+			int parenthesis = 0;
+			for(int i = 0; i<line.length(); i++) {
+				if(line.charAt(i) == '(')
+					parenthesis++;
+				if(parenthesis>0)
+					expression += line.charAt(i);
+				if(line.charAt(i) == ')') {
+					parenthesis--;
+					if(parenthesis == 0) {
+						program.add(expression);
+						expression = "";
+					}
+				}
+			}
+		}
+		return program.toArray(new String[program.size()]);
+		
 	}
 
 }

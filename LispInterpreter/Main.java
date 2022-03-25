@@ -13,7 +13,7 @@ public class Main{
 		boolean end = false;
 		while(!end) {
 			menu = """
-					\n1. Iniciar ejecucion de archivo data.txt
+					\n1. Indicar el nombre del archivo a ejecutar.
 					2. Salir""";
 			int option = pregunta(menu, 2, sc);
 			
@@ -28,16 +28,19 @@ public class Main{
 						fileContent = FileController.readFile(filename);
 						repeat = false;
 					} catch (IOException e) { //Si no se encuentra el archivo
-						System.out.println("\nArchivo no encontrado.\nPor favor, asegurese de que el archivo tenga el nombre correcto y se encuentre en la carpeta donde se encuentra el programa.");
+						System.out.println("\nArchivo no encontrado.\nPor favor, asegurese de que el archivo tenga el nombre correcto y se encuentre en la carpeta que contiene al programa.");
 						System.out.println("Presione enter para volver a buscar el archivo.");
 						sc.nextLine();
 					}
 				}
 				System.out.println("\nArchivo encontrado");
 				try {
-					Data data = Interpreter.fileToRow(fileContent);
-					if(data.getDescription() != null && data.getDescription().contains("print"))
-						System.out.println(data.getValue());
+					String [] program = Interpreter.validFormat(fileContent);
+					for(String row : program) {
+						Data data = Interpreter.operate(row);
+						if(data.getDescription() != null && data.getDescription().contains("print"))
+							System.out.println(data.getValue());
+					}
 				}catch(Exception e) {
 					System.out.println("Error: " + e.getMessage());
 				}

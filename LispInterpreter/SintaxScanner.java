@@ -34,7 +34,7 @@ public class SintaxScanner {
 			return 3;
 
 		// Definicion de funciones
-		if (match("^\\(\\s*defun\\s+[^()\"']+\\([^()\"']*\\).+\\)$", expression))
+		if (match("^\\(\\s*defun\\s+[^()\\\"']+\\s*\\([^()\\\"']*\\).*\\)$", expression))
 			return 4;
 		
 		//evaluar funcion
