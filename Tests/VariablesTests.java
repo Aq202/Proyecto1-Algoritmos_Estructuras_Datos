@@ -17,7 +17,7 @@ class VariablesTests {
 		VariableFactory.newVariable("var3", 10);
 		try {
 			assertEquals(25.12, Double.parseDouble(VariableFactory.getVariable("var1_").toString()));
-			assertEquals("Hola mundo!", VariableFactory.getVariable("var2").toString());
+			assertEquals("'Hola mundo!'", VariableFactory.getVariable("var2").toString());
 			assertEquals(10,Integer.parseInt(VariableFactory.getVariable("var3").toString()));
 		} catch (ReferenceException e) {
 			fail(e.getMessage());

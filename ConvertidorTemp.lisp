@@ -1,4 +1,3 @@
-(write "Convirtiendo 25 grados Celsius a Fahrenheit")
 (setq celsius 25)
 (defun convert (celsius))
     (setq fahrenheit (+ 32 (* celsius (/ 9 5))))

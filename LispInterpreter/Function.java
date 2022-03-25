@@ -5,11 +5,24 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Clase Function. Se encarga de almacenar, manipular y ejecutar una funcion.
+ * 
+ * @author Diego Morales, Erick Guerra, Pablo Zamora
+ * @version 25/03/2022
+ *
+ */
 public class Function {
 
 	private String expression, name, functionBodyExpression;
 	private String[] functionParameters;
 
+	/**
+	 * Clase Function. Almacena las expresiones correspondientes a una función.
+	 * 
+	 * @param expression
+	 * @throws InvalidExpression
+	 */
 	public Function(String expression) throws InvalidExpression {
 
 		if (expression == null)
@@ -20,6 +33,12 @@ public class Function {
 		this.destructureExpression();
 	}
 
+	/**
+	 * Metodo get para el nombre de la funcion.
+	 * 
+	 * @return String.
+	 * @throws InvalidExpression
+	 */
 	public String getName() throws InvalidExpression {
 
 		if (name != null)
@@ -34,6 +53,10 @@ public class Function {
 
 	}
 
+	/**
+	 * Se encarga de obtener los parametros y el cuerpo de la funcion, a partir de
+	 * la expresion proporcionada.
+	 */
 	private void destructureExpression() {
 
 		// get function params
@@ -62,6 +85,14 @@ public class Function {
 		return name + cont;
 	}
 
+	/**
+	 * Ejecuta el procedimiento caracteristico de la funcion.
+	 * 
+	 * @param params. String. Parametros de la funcion.
+	 * @return Data.
+	 * @throws InvalidExpression
+	 * @throws ReferenceException
+	 */
 	public Data execute(String... params) throws InvalidExpression, ReferenceException {
 
 		// Muy pocos argumentos proporcionados
@@ -92,16 +123,17 @@ public class Function {
 		}
 
 		// ejecutar funcion
-		String mainExpression = Interpreter.operateSubexpressions(operatedExpression, 0,true);
+		String mainExpression = Interpreter.operateSubexpressions(operatedExpression, 0, true);
 		String[] primitiveResults = SintaxScanner.evaluateRegex(
-				"(([-+]{0,1}([\\d^.]+)|((\\d+\\\\.\\d+)))|(\\\"[^\\\"]*\\\")|('[^']*')|(\\bNIL\\b|\\bT\\b))+", mainExpression);
-		
+				"(([-+]{0,1}([\\d^.]+)|((\\d+\\\\.\\d+)))|(\\\"[^\\\"]*\\\")|('[^']*')|(\\bNIL\\b|\\bT\\b))+",
+				mainExpression);
+
 		// eliminar valores temporales
 		for (String variable : temporaryVariables) {
 			VariableFactory.deleteVariable(variable);
 		}
-		
-		//obtener ultimo retorno
+
+		// obtener ultimo retorno
 		Data result;
 		if (primitiveResults != null && primitiveResults.length > 0)
 			result = new Data(primitiveResults[primitiveResults.length - 1]);

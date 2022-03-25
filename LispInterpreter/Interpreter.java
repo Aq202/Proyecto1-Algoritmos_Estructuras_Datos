@@ -5,11 +5,26 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Clase Interpreter.
+ * 
+ * @author Diego Morales, Erick Guerra, Pablo Zamora
+ * @version 25/03/2022
+ *
+ */
 public class Interpreter {
 
 	public static final String[] RESERVER_WORDS = { "setq", "list", "listp", "t", "nil", "atom", "write", "cond",
 			"defun", "quote", "lisp" };
 
+	/**
+	 * Se encarga de ejecutar una expresion en formato Lisp.
+	 * 
+	 * @param expression Expresion lisp.
+	 * @return Data
+	 * @throws InvalidExpression
+	 * @throws ReferenceException
+	 */
 	public static Data operate(String expression) throws InvalidExpression, ReferenceException {
 
 		int state = SintaxScanner.getState(expression);
@@ -84,19 +99,19 @@ public class Interpreter {
 			return VariableFactory.getVariable(expression);
 		}
 
-		default: { //buscar opciones
+		default: { // buscar opciones
 			String content = Operations.getListContent(expression);
-			
-			if(!expression.equals(content)) {
-				
-				//verificar si es un dato primitivo
-				if(SintaxScanner.getState(content) == 13)
+
+			if (!expression.equals(content)) {
+
+				// verificar si es un dato primitivo
+				if (SintaxScanner.getState(content) == 13)
 					return new Data(content);
-				
-				//evaluar contenido de la lista
+
+				// evaluar contenido de la lista
 				return operate(content);
 			}
-			
+
 		}
 
 		}
@@ -111,6 +126,7 @@ public class Interpreter {
 	 * @param expressionContent
 	 * @return Retorna la expresion con los valores correspondientes sustituidos.
 	 * @throws ReferenceException
+	 * @throws InvalidExpression
 	 */
 
 	public static String operateSubexpressions(String expressionContent, int argumentsNumber, boolean nested)
@@ -142,9 +158,9 @@ public class Interpreter {
 			String newValue;
 			if (!isNested(arguments, valueToOverwrite))
 				return (arguments + " " + operatedExpression);
-			
+
 			data = operate(regexMatches[matchIndex]);
-			
+
 			nested = data.getDescription() != null && data.getDescription().contains("notNested") ? false : true;
 			newValue = data.toString();
 			newValue = newValue.equals("t") || newValue.equals("nil") ? "\"" + newValue + "\"" : newValue;
@@ -274,29 +290,36 @@ public class Interpreter {
 			return true;
 		return false;
 	}
-	
+
+	/**
+	 * Metodo que se encarga de analizar una serie de strings y extraer las
+	 * diferentes expresiones lisp contenidas en ellas. *
+	 * 
+	 * @param fileContent String[]
+	 * @return String[] Expresiones Lisp
+	 */
 	public static String[] validFormat(String[] fileContent) {
 		ArrayList<String> program = new ArrayList<String>();
 		String line = "";
-		for(String row : fileContent) {
-			if(!row.equals(null))
+		for (String row : fileContent) {
+			if (!row.equals(null))
 				line += row.trim();
 		}
-		if(line.charAt(0) == '\'') {
+		if (line.charAt(0) == '\'') {
 			program.add(line);
 			return program.toArray(new String[program.size()]);
 		}
-		if(!line.equals("")) {
+		if (!line.equals("")) {
 			String expression = "";
 			int parenthesis = 0;
-			for(int i = 0; i<line.length(); i++) {
-				if(line.charAt(i) == '(')
+			for (int i = 0; i < line.length(); i++) {
+				if (line.charAt(i) == '(')
 					parenthesis++;
-				if(parenthesis>0)
+				if (parenthesis > 0)
 					expression += line.charAt(i);
-				if(line.charAt(i) == ')') {
+				if (line.charAt(i) == ')') {
 					parenthesis--;
-					if(parenthesis == 0) {
+					if (parenthesis == 0) {
 						program.add(expression);
 						expression = "";
 					}
@@ -304,7 +327,7 @@ public class Interpreter {
 			}
 		}
 		return program.toArray(new String[program.size()]);
-		
+
 	}
 
 }

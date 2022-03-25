@@ -1,29 +1,62 @@
 package LispInterpreter;
 
+/**
+ * Permite la transmision y manipulacion de objetos de distintos tipos.
+ * 
+ * @author Diego Morales, Erick Guerra, Pablo Zamora
+ * @version 25/03/2022
+ *
+ */
 public class Data {
 
 	private Object value;
 	private String description;
 	private boolean blockPrint = false;
 
+	/**
+	 * Metodo constructor de la clase
+	 * 
+	 * @param value       Object.
+	 * @param description String
+	 */
 	public Data(Object value, String description) {
 		this.value = value;
 		this.description = description;
 	}
 
+	/**
+	 * Metodo constructor de la clase
+	 * 
+	 * @param value Object.
+	 */
 	public Data(Object value) {
 		this.value = value;
 		this.description = null;
 	}
 
+	/**
+	 * Metodo getter de la propiedad value.
+	 * 
+	 * @return Object.
+	 */
 	public Object getValue() {
 		return value;
 	}
 
+	/**
+	 * Metodo getter de la propiedad Description.
+	 * 
+	 * @return String.
+	 */
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 * Metodo que permite obtener el valor en formato String.
+	 * 
+	 * @return String.
+	 */
 	@Override
 	public String toString() {
 		if (value instanceof Boolean)
@@ -31,6 +64,12 @@ public class Data {
 		return value != null ? value + "" : null;
 	}
 
+	/**
+	 * Metodo que permite validar si una cadena corresponde al formato de un numero.
+	 * 
+	 * @param expression
+	 * @return boolean.
+	 */
 	public static boolean isNumber(String expression) {
 
 		String[] matches = SintaxScanner.evaluateRegex("(?<!\\S)([-+]{0,1}([\\d^.]+)|((\\d+\\.\\d+)))(?!\\S)",
@@ -52,13 +91,20 @@ public class Data {
 	 * Se encarga de verificar si un numero posee decimales diferentes a cero.
 	 * 
 	 * @param expression
-	 * @return
+	 * @return boolean.
 	 */
 	public static boolean isDouble(String expression) {
 		return SintaxScanner.hasMatches("^([-+]*\\d+\\.(\\d*[1-9]\\d*)+)$",
 				expression != null ? expression.trim() : "");
 	}
 
+	/**
+	 * Se encarga de validar si una expresion corresponde al formato 'string' o
+	 * "String".
+	 * 
+	 * @param expression
+	 * @return boolean.
+	 */
 	public static boolean isString(String expression) {
 
 		String[] matches = SintaxScanner.evaluateRegex("(\\\"\\\"[^\\\"]*\\\"\\\")|(\\\"[^\\\"]*\\\")|('[^']*')",
@@ -75,6 +121,12 @@ public class Data {
 		return false;
 	}
 
+	/**
+	 * Valida si una expresion corresponde al dato primivo booleano T o NIL.
+	 * 
+	 * @param expression
+	 * @return
+	 */
 	public static boolean isBoolean(String expression) {
 
 		if (expression == null)
@@ -85,6 +137,13 @@ public class Data {
 
 	}
 
+	/**
+	 * Se encarga de transformar una expresion a una insancia de un objeto, segun el
+	 * formato de la misma.
+	 * 
+	 * @param value
+	 * @return Object.
+	 */
 	public static Object castValue(String value) {
 
 		value = value.trim();
@@ -126,7 +185,7 @@ public class Data {
 	/**
 	 * Indica si el contenido debe de imprimirse en el Main
 	 * 
-	 * @return
+	 * @return boolean.
 	 */
 	public boolean getBlockPrint() {
 		return this.blockPrint;

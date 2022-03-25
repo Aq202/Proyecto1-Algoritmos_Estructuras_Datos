@@ -93,7 +93,7 @@ public class Operations {
 	}
 
 	/**
-	 * 
+	 * Metodo que se encarga de evaluar una operacion atom.
 	 * @param expressionContent. El contenido sin () de la expresion atom y lisp
 	 * @return Data
 	 * @throws InvalidExpression
@@ -116,7 +116,7 @@ public class Operations {
 	}
 
 	/**
-	 * 
+	 * Metodo que se encarga de interpretar la operacion write.
 	 * @param expressionContent. El contenido sin () de la expresion write
 	 * @return Data
 	 * @throws InvalidExpression
@@ -148,9 +148,9 @@ public class Operations {
 	}
 
 	/**
-	 * 
+	 * Metodo que se encarga de crear una nueva variable en el entorno del interprete.
 	 * @param expressionContent. El contenido sin () de la expresion setq
-	 * @return
+	 * @return Data
 	 * @throws InvalidExpression
 	 */
 	public static Data assignVariable(String expressionContent) throws InvalidExpression, ReferenceException {
@@ -181,6 +181,13 @@ public class Operations {
 
 	}
 
+	/**
+	 * Metodo que se encarga de realizar una operacion aritmetica determinada.
+	 * @param operator String. Operadores validos: + - / *
+	 * @param expressionBody. String. Serie de numeros separados por espacios.
+	 * @return double.
+	 * @throws InvalidExpression
+	 */
 	private static double doubleOperation(String operator, String expressionBody) throws InvalidExpression {
 
 		if (operator == null)
@@ -238,6 +245,13 @@ public class Operations {
 		return total;
 	}
 
+	/**
+	 * Metodo que se encarga de ejecutar una funcion determinada.
+	 * @param expression Expresion lisp en formato (NAME params...)
+	 * @return Data
+	 * @throws ReferenceException
+	 * @throws InvalidExpression
+	 */
 	public static Data evaluateFunction(String expression) throws ReferenceException, InvalidExpression {
 		expression = getListContent(expression);
 
@@ -259,6 +273,12 @@ public class Operations {
 		return func.execute(functionParamValues);
 	}
 
+	/**
+	 * Se encarga de evaluar una operacion booleana.
+	 * @param expressionContent Expresion booleana en formato lisp.
+	 * @return boolean.
+	 * @throws InvalidExpression
+	 */
 	public static boolean booleanOperation(String expressionContent) throws InvalidExpression {
 		// obtiene primer signo
 		final String operator = SintaxScanner.evaluateRegex("^\\s*[\\<\\=*\\>]", expressionContent)[0].trim();
@@ -330,6 +350,13 @@ public class Operations {
 
 	}
 
+	/**
+	 * Expresion que se encarga de evaluar una operacion Cond.
+	 * @param expressionContent Expresion cond.
+	 * @return Data
+	 * @throws InvalidExpression
+	 * @throws ReferenceException
+	 */
 	public static Data condOperation(String expressionContent) throws InvalidExpression, ReferenceException {
 
 		try {
@@ -407,6 +434,13 @@ public class Operations {
 		return arguments.toArray(new String[arguments.size()]);
 	}
 
+	/**
+	 * Se encarga de retornar el contenido de la expresion, ignorando las primeras N palabras/expresiones.
+	 * @param expressionContent Expresion lisp sin ().
+	 * @param argumentsNumber. Numero de expresiones a ignorar.
+	 * @return String
+	 * @throws NullPointerException
+	 */
 	public static String getListBody(String expressionContent, int argumentsNumber) throws NullPointerException {
 		;
 

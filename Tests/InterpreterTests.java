@@ -49,7 +49,7 @@ class InterpreterTests {
 
 			assertEquals(24, Integer.parseInt(VariableFactory.getVariable("var1").toString()));
 			assertEquals(2.14, Double.parseDouble(VariableFactory.getVariable("var2").toString()));
-			assertEquals("hola mundo!", VariableFactory.getVariable("var3").toString());
+			assertEquals("\"hola mundo!\"", VariableFactory.getVariable("var3").toString());
 
 		} catch (InvalidExpression e) {
 			fail("Invalid expression." + e);

@@ -1,9 +1,15 @@
 package LispInterpreter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Scanner;
 
+/**
+ * Clase Main.
+ * 
+ * @author Diego Morales, Erick Guerra, Pablo Zamora
+ * @version 25/03/2022
+ *
+ */
 public class Main {
 
 	/**
@@ -18,6 +24,11 @@ public class Main {
 		return sc.nextLine();
 	}
 
+	/**
+	 * Metodo principal del programa.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 
